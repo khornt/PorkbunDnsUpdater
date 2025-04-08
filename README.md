@@ -1,2 +1,2 @@
-# CertificateTool
-Small tool for making Jwk and obtaining a certificate
+# DnsUdater
+Dyndns client for Porkbun
