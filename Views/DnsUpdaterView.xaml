@@ -1,0 +1,136 @@
+﻿<UserControl x:Class="PorkbunDnsUpdater.View.DnsUpdaterView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewModels="clr-namespace:PorkbunDnsUpdater.ViewModels"
+        d:DataContext="{d:DesignInstance Type=viewModels:DnsUpdaterViewModel}"
+        mc:Ignorable="d"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        Background="#1E1E1E" Foreground="White">
+    
+    
+    
+
+    <UserControl.Resources>
+        <Style TargetType="Button" x:Key="MyButtonStyle">
+            <Setter Property="OverridesDefaultStyle" Value="True" />
+            <Setter Property="Background" Value="Black" />
+            <Setter Property="Foreground" Value="White" />
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Grid Background="{TemplateBinding Background}">
+                            <ContentPresenter x:Name="MyContentPresenter" 
+                                              Content="{TemplateBinding Content}"
+                                              HorizontalAlignment="Center" 
+                                              VerticalAlignment="Center" />
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="Black"/>
+                    <Setter Property="Foreground" Value="#666666"/>
+                </Trigger>
+
+                <!--<Trigger Property="IsEnabled" Value="True">
+                    <Setter Property="Background" Value="Black"/>
+                    <Setter Property="Foreground" Value="#666666"/>
+                </Trigger>-->
+
+
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="130"/>
+            <ColumnDefinition Width="130"/>
+            <ColumnDefinition Width="130"/>
+            <ColumnDefinition Width="*"/>
+
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="270"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Label Grid.Row="0" Grid.Column="0"  
+            Grid.ColumnSpan="3"
+            Name="FileLabel" FontSize="16" 
+            Content="Porkbun DynDns updater!"  
+            HorizontalAlignment="Left" VerticalAlignment="Top" Margin="15,5,0,0" Width="240"
+            Foreground="White"/>
+
+
+        <Label Content="To update:" FontSize="16" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="15,0,0,0"
+        Foreground="White" Grid.Row="1" Grid.Column="0" />
+
+        <TextBox Name="txtDnsRecord" Text="{Binding DnsRecord, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" 
+            TextAlignment="Left" VerticalAlignment="Top" Height="25" Width="200" Margin="0,5,0,0"
+            Background="#333333" Padding="5,3,2,0" Foreground="White"
+            BorderBrush="#555555" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3"/>
+
+        <Label Content="Interval:" FontSize="16" HorizontalAlignment="Left" VerticalAlignment="Top" 
+        Margin="15,0,0,0" Foreground="White" Grid.Row="2" Grid.Column="0" />
+
+        <ComboBox Background="White" Foreground="Black"
+            Grid.Row="2"
+            Grid.Column="1"
+            FontSize="14"
+            ItemsSource="{Binding IntervalDropDown}"  
+            SelectedValue="{Binding CheckInterval, NotifyOnTargetUpdated=True}"
+            Name="DropDownList" HorizontalAlignment="Left" VerticalAlignment="Top" Height="27" Width="120" Margin="0,5,0,0">
+
+            <ComboBox.ItemContainerStyle>
+                <Style TargetType="ComboBoxItem">
+                    <Setter Property="Background" Value="White"/>
+                    <Setter Property="BorderBrush" Value="White"/>
+                </Style>
+            </ComboBox.ItemContainerStyle>
+
+            <ComboBox.Resources>
+                <!--Colour of ComboBoxItem-->
+                <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}" Color="Black" />
+                <!--Mouse over colour of ComboBoxItem-->
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Black" />
+            </ComboBox.Resources>
+        </ComboBox>
+
+        <Button Grid.Row="3"
+                Grid.Column="0"                        
+                Width="110" Height="30"
+                Content="Start update" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="15,5,0,0"        
+                Command="{Binding StartDnsUpdater}"
+                Style="{StaticResource ResourceKey =MyButtonStyle}"/>
+
+        <Button Grid.Row="3"
+            Grid.Column="1"                        
+            Width="110" Height="30"
+            Content="Stop update" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="15,5,0,0"
+            Command="{Binding StopDnsUpdater}"
+            Style="{StaticResource ResourceKey =MyButtonStyle}"/>
+
+
+        <TextBox Grid.Row="4"
+             Grid.Column="0"
+             Grid.ColumnSpan="5"
+             FontSize="14"
+             Name="txtDnsProgress" 
+             Text="{Binding DnsProgress, UpdateSourceTrigger=PropertyChanged}"
+             HorizontalAlignment="Left" TextAlignment="Left" TextWrapping="Wrap" 
+             VerticalAlignment="Top" Height="230" Width="500" Margin="20,20,20,20"
+             Background="#1E1E1E" Padding="5,3,2,0" Foreground="White" BorderBrush="#555555" />
+
+    </Grid>
+</UserControl>
