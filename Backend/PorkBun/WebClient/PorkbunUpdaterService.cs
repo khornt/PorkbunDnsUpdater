@@ -1,7 +1,9 @@
 ﻿
 using System.DirectoryServices.ActiveDirectory;
+using System.Net;
 using Org.BouncyCastle.Bcpg.OpenPgp;
 using PorkbunDnsUpdater.Backend.PorkBun.Dto.Response;
+using PorkbunDnsUpdater.Backend.PorkBun.Dto.Response.JsonToCSharp;
 
 namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
 {
@@ -21,10 +23,10 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
 
         }
 
-        public async Task<PingV4Response> PingPorkbun()
-        {
-            return await _httpClient.Ping();
-        }
+        //public async Task<PingV4Response> PingPorkbun()
+        //{
+        //    return await _httpClient.Ping();
+        //}
 
         public async Task<string?> GetPorkbunRecord(string domain, string type, string subdomain)
         {
@@ -32,8 +34,57 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
             return await _httpClient.GetPorkbunRecord(domain, type, subdomain);            
         }
 
+        public async Task<string> InitPorkbunUpdater(string domain, string type, string subdomain, IProgress<string> progress) //progress skal inneholde en del mere
+        {
+            var realIp = await _httpClient.Ping();
+            
 
-        public async Task<bool> ContinuouslyUpdate(int interval,string iP,IProgress<string> progress)
+            if (realIp.Status != "Error")
+            {
+
+                progress.Report("\n" + "Your public IP is: " + realIp.YourIp);
+                              
+
+                var currentDnsIp = await _httpClient.GetPorkbunRecord(domain, type, subdomain);
+
+                //Mer sjekk her
+
+                
+                progress.Report("\nYour DNS Ip is: " + currentDnsIp.ToString());
+
+
+                if (!string.IsNullOrEmpty(currentDnsIp))
+                {
+                    if (realIp.YourIp != currentDnsIp)
+                    {
+
+                        progress.Report("\nUpdating DNS Record...");
+                        var newRealIp = await _httpClient.UpdatePorkbunRecord(domain, type, subdomain, realIp.YourIp);
+                        progress.Report("Done!");
+                        return newRealIp;
+
+                    } else
+                    {
+                        return realIp.YourIp;
+                    }
+                    
+                }
+                else
+                {
+                    progress.Report("\nError!!");                    
+                    return "";
+                }
+                
+            }
+            else
+            {
+                progress.Report("\nError!!");
+                return "";
+            }         
+        }
+
+
+        public async Task<bool> ContinuouslyUpdate(string domain, string type, string subdomain, int interval,string currentIp,IProgress<string> progress) //progress skal inneholde en del mere
         {
             var intervalInSecounds = interval * 60;
             var runIt = true;
@@ -49,7 +100,8 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
                     progress.Report("\nJust checking...");
                     nextUpdateDue = DateTimeOffset.UtcNow.AddSeconds(interval);
                      var result = await _httpClient.Ping();
-
+                    
+                    fake++;
                     if (fake == 30)
                     {
                         progress.Report("\nDebug fake, setting ip to some shit...");
@@ -57,9 +109,7 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
                         fake = 0;
                     }
 
-
-
-                    if (result.YourIp != iP)
+                    if (result.YourIp != currentIp)
                     {
                         progress.Report("Ip has changed!!");
                         var updateResponse = await _httpClient.UpdatePorkbunRecord("lekesute.me", "A", "fw", result.YourIp);

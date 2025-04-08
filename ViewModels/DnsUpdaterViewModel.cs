@@ -1,4 +1,6 @@
-﻿using System.Windows.Input;
+﻿using System.Threading.Tasks;
+using System.Windows.Input;
+using System.Windows.Media.Animation;
 using PorkbunDnsUpdater.Backend.PorkBun.WebClient;
 using PorkbunDnsUpdater.Commands;
 using PorkbunDnsUpdater.Models;
@@ -16,17 +18,17 @@ namespace PorkbunDnsUpdater.ViewModels
         private string _currentV4Ip;
         private string _currentV6Ip;
 
-        private string _pingV4Response;
-        private string _pingV6Response;
+        private string _dnsHost;
+        private string _dnsDomain;
 
-        private string _aRecordIp;
+        //private string _pingV4Response;
+        //private string _pingV6Response;
+
+        //private string _aRecordIp;
 
         private string _checkInterval;
         private string _dnsRecord;
         private string _dnsProgress;
-
-
-
 
 
         public DnsUpdaterViewModel(INavigationService navigationService, AppConfig appConfig, PorkbunUpdaterService porkbunUpdaterService)
@@ -45,11 +47,6 @@ namespace PorkbunDnsUpdater.ViewModels
 
         public ICommand StopDnsUpdater { get; private set; }
 
-
-
-
-
-
         public string CurrentV4iP
         {
             get { return _currentV4Ip; }
@@ -62,6 +59,17 @@ namespace PorkbunDnsUpdater.ViewModels
             set { _currentV6Ip = value; OnPropertyChanged("CurrentV6iP"); }
         }
 
+        public string DnsHost
+        {
+            get { return _dnsHost; }
+            set { _dnsHost= value; OnPropertyChanged("DnsHost"); }
+        }
+
+        public string DnsDomain
+        {
+            get { return _dnsDomain; }
+            set { _dnsDomain = value; OnPropertyChanged("DnsDomain"); }
+        }
 
         public string DnsRecord
         {
@@ -89,68 +97,65 @@ namespace PorkbunDnsUpdater.ViewModels
         {
             var justNow = DateTimeOffset.Now;
 
+            DnsProgress = "";
+
+            var check = await QuickCheckConfig();
+
+            if (!check) return;
+
             DnsProgress = "Starting up DnsUpdater!!";
-            DnsRecord = "fsdfjdsffe";
 
 
-            
-
-            var checkInterval = IntervalConverter(CheckInterval);
-            
-
-            if (_currentV4Ip == null)
+            if (string.IsNullOrEmpty(CheckInterval))
             {
-                var result = await _porkbunUpdaterService.PingPorkbun();
-
-
-                if (result.Status != "Error")
-                {
-                    DnsProgress = DnsProgress + "\n" + "Your public IP is: " + result.YourIp;
-                    var myRealIp = result.YourIp;
-                    if (myRealIp != _currentV4Ip)
-                    {
-                        var currentDnsIp = await _porkbunUpdaterService.GetPorkbunRecord("lekestue.me", "A", "fw");
-
-                        DnsProgress = DnsProgress + "\n" + "Your DNS Ip is: " + currentDnsIp.ToString();
-
-                        if (!string.IsNullOrEmpty(currentDnsIp))
-                        {
-                            if (myRealIp != currentDnsIp)
-                            {
-
-                                DnsProgress = DnsProgress + "\n" + "Updating DNS Record...";
-                                await _porkbunUpdaterService.UpdateDnsRecord("lekestue.me", "A", "fw", myRealIp);
-
-                                DnsProgress = DnsProgress + "\n" + "Done!";
-                            }
-                            else if (myRealIp == currentDnsIp)
-                            {
-                                CurrentV4iP = currentDnsIp;
-                            }
-                        }
-                        else
-                        {
-                            DnsProgress = "Error";
-                            //Host og record ekisterer ikke, lag det og restart
-                            return;
-                        }
-                    }
-                }
-                else
-                {
-                    DnsProgress = "Error";
-                    return; //init error, dispaly something
-                }
+                DnsProgress += "\nDefault check interval: 60  min";
             }
-
-
+            
+            var checkInterval = IntervalConverter(CheckInterval);
             Progress<string> progress = new Progress<string>();
             progress.ProgressChanged += DnsUpdaterReport;
 
-
+            if (_currentV4Ip == null)
+            {                
+                CurrentV4iP = await _porkbunUpdaterService.InitPorkbunUpdater(_dnsDomain, "A", _dnsHost, progress);
+                //Sjekk status om den er initialisert ok
+            }
+            
             //alles gut 
-            await _porkbunUpdaterService.ContinuouslyUpdate(checkInterval, CurrentV4iP, progress);
+            await _porkbunUpdaterService.ContinuouslyUpdate(_dnsDomain, "A", _dnsHost, checkInterval, CurrentV4iP ,progress);
             //infinit loop here!!
+        }
+
+        private async Task<bool> QuickCheckConfig()
+        {
+            var key = _appConfig.PorkbunApiKey;
+            var secret = _appConfig.PorkbunApiSecret;
+
+            if (string.IsNullOrEmpty(key) || string.IsNullOrEmpty(secret)) 
+            {
+                DnsProgress = "Missing ApiKey / Secret config...";
+                await Task.Delay(2000);
+                DnsProgress += "Stop!";
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(_dnsDomain))
+            {
+                DnsProgress = "Enter Domain to update...";
+                await Task.Delay(2000);
+                DnsProgress += "Stop!";
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(_dnsHost))
+            {
+                DnsProgress = "Enter host name to update...";
+                await Task.Delay(2000);
+                DnsProgress += "Stop!";
+                return false;
+            }
+
+            return true;
         }
 
         private void DnsUpdaterReport(object? sender, string e)
