@@ -18,8 +18,9 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
         public async Task<string> InitPorkbunUpdater(string domain, string type, string subdomain, IProgress<StatusReport> report, CancellationToken ct) //progress skal inneholde en del mere
         {
             var realIp = await _httpClient.Ping(ct);
+                      
 
-            if (realIp.Status != "Error")
+            if (realIp?.YourIp != null && realIp?.Status != "Error")
             {
                 var reportBack = "Your public IP is: " + realIp.YourIp;
                 report.Report(new StatusReport { Content = reportBack });
@@ -47,7 +48,7 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
                     report.Report(new StatusReport { Content = reportBack });                    
                     return "";
                 }
-                var currentDnsIp = responseDto.Records.First().Content;
+                var currentDnsIp = responseDto?.Records?.First().Content;
 
                 if (!string.IsNullOrEmpty(currentDnsIp))
                 {
@@ -87,8 +88,8 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
         {
             var intervalInSecounds = interval * 60;
             var runIt = true;
-            var fake = 0;
-            
+            //var pingPong = "|                    |";
+                        
             var nextUpdateDue = DateTimeOffset.UtcNow.AddSeconds(intervalInSecounds);
 
             while (runIt)
@@ -102,20 +103,20 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
 
                     var callBack = new ProgressReport
                     {
-                        Ip4 = result.YourIp,
-                        Message = result.Message,
-                        Content = result.Status
-                        
+                        Ip4 = result?.YourIp ?? "",
+                        Message = result?.Message ?? "",
+                        Content = result?.Status ?? ""
+
                     };
 
                     progress.Report(callBack);                                       
-                    if (result.YourIp != currentIp)
+                    if (result?.YourIp != null && result.YourIp != currentIp)
                     {
                         report.Report(new StatusReport { Content = "IP has changed!!" });
                         
                         var updateResponse = await _httpClient.UpdatePorkbunRecord(domain, "A", subdomain, result.YourIp, ct);
 
-                        if (updateResponse.Status == "SUCCESS")
+                        if (updateResponse?.Status == "SUCCESS")
                         {
                             var reportBack = $"DNS Record has been updated with IP: {result.YourIp}";
                             report.Report(new StatusReport { Content = reportBack });                         
@@ -123,9 +124,16 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
 
                         } else
                         {
-                            var reportBack = $"Eror updating DNS record {updateResponse.Message}";
-                            report.Report(new StatusReport { Content = reportBack });                           
+                            var message = updateResponse?.Message ?? "";
+                            var reportBack = $"Eror updating DNS record: {message}";
+                            report.Report(new StatusReport { Content = reportBack });
                         }                        
+                    }
+                    if (result?.YourIp == null)
+                    {
+                        var reportBack = $"Missing IP from Ping request";
+                        report.Report(new StatusReport { Content = reportBack });
+
                     }
                     else 
                     {
@@ -138,7 +146,7 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
                         nextUpdateDue = DateTimeOffset.UtcNow.AddSeconds(intervalInSecounds);
                 }                
                 ct.ThrowIfCancellationRequested();
-                await Task.Delay(1000, ct);            
+                await Task.Delay(1000, ct);
             }            
         }        
     }

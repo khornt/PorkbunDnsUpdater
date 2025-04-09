@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace PorkbunDnsUpdater.Backend.PorkBun.Dto.Response
 {
@@ -11,15 +6,12 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.Dto.Response
     {
 
         [JsonProperty("status")]
-        public string Status {  get; set; }
+        public string? Status {  get; set; }
         
         [JsonProperty("yourIp")]
-        public string YourIp { get; set; }
+        public string? YourIp { get; set; }
 
         [JsonProperty("message")]
-        public string Message { get; set; }
-
-        //[JsonProperty("yourIp")]
-        //public string YourIp { get; set; }
+        public string? Message { get; set; }
     }
 }

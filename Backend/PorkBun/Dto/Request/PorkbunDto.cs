@@ -10,16 +10,15 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.Dto.Request
     public class PorkbunDto
     {
         [JsonProperty("apikey")]
-        public string Apikey { get; set; }
+        public required string Apikey { get; set; }
 
         [JsonProperty("secretapikey")]
-        public string Secretapikey {  get; set; }
+        public required string Secretapikey {  get; set; }
 
         [JsonProperty("content")]
-        public string Content { get; set; }
+        public string? Content { get; set; }
 
         [JsonProperty("ttl")]
-        public string Ttl { get; set; }
-
+        public string? Ttl { get; set; }
     }
 }

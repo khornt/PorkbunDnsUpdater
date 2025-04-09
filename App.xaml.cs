@@ -10,11 +10,8 @@ namespace PorkbunDnsUpdater
 {
     public partial class App : Application
     {
-        // https://stackoverflow.com/questions/1922204/open-directory-dialog
-        // Todo: Output folder
-
-        private readonly IServiceProvider _serviceProvider;
-        private INavigationService _initPage;
+               
+        private readonly IServiceProvider _serviceProvider;        
 
         public App()
         {
