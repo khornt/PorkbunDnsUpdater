@@ -11,24 +11,22 @@ namespace PorkbunDnsUpdater.ViewModels
     public class DnsUpdaterViewModel : ViewModelBase
     {
 
+        CancellationTokenSource cts;
         private readonly INavigationService _navigationService;
         private readonly PorkbunUpdaterService _porkbunUpdaterService;
         private readonly AppConfig _appConfig;
 
         private string _currentV4Ip;
         private string _currentV6Ip;
-
         private string _dnsHost;
         private string _dnsDomain;
-
-        //private string _pingV4Response;
-        //private string _pingV6Response;
-
-        //private string _aRecordIp;
+               
 
         private string _checkInterval;
         private string _dnsRecord;
         private string _dnsProgress;
+        private bool _showStartButton;
+        private bool _showStopButton;
 
 
         public DnsUpdaterViewModel(INavigationService navigationService, AppConfig appConfig, PorkbunUpdaterService porkbunUpdaterService)
@@ -40,12 +38,17 @@ namespace PorkbunDnsUpdater.ViewModels
             IntervalDropDown = appConfig.PorkbunIntervals;
             StartDnsUpdater = new TaskDelegateCommand(ExecuteStartDnsUpdater, CanExecuteStartDnsUpdater).ObservesProperty(() => DnsProgress);
             StopDnsUpdater = new TaskDelegateCommand(ExecuteStopDnsUpdater);
+            _showStopButton = false;
+            _showStartButton = true;
         }
 
 
         public ICommand StartDnsUpdater { get; private set; }
 
         public ICommand StopDnsUpdater { get; private set; }
+         
+        //public bool ShowStartButton { get; set; } = true;
+        //public bool ShowStopButton { get; set; } = true;    
 
         public string CurrentV4iP
         {
@@ -90,12 +93,28 @@ namespace PorkbunDnsUpdater.ViewModels
             set { _dnsProgress = value; OnPropertyChanged("DnsProgress"); }
         }
 
+
+        public bool ShowStopButton
+        {
+            get { return _showStopButton; }
+            set { _showStopButton = value; OnPropertyChanged("ShowStopButton"); }
+        }
+
+        public bool ShowStartButton
+        {
+            get { return _showStartButton; }
+            set { _showStartButton = value; OnPropertyChanged("ShowStartButton"); }
+        }
+
         public List<string> IntervalDropDown { get; }
 
 
         private async Task ExecuteStartDnsUpdater()
         {
+            ShowStartButton = false;
+            ShowStopButton = true;
             var justNow = DateTimeOffset.Now;
+            cts = new CancellationTokenSource();
 
             DnsProgress = "";
 
@@ -103,27 +122,54 @@ namespace PorkbunDnsUpdater.ViewModels
 
             if (!check) return;
 
-            DnsProgress = "Starting up DnsUpdater!!";
-
-
+            StatusWindowUpdater("Starting up DnsUpdater!!", false);
+            
             if (string.IsNullOrEmpty(CheckInterval))
             {
-                DnsProgress += "\nDefault check interval: 60  min";
+                StatusWindowUpdater("Default check interval: 60  min");                
             }
             
             var checkInterval = IntervalConverter(CheckInterval);
-            Progress<string> progress = new Progress<string>();
-            progress.ProgressChanged += DnsUpdaterReport;
+            Progress<StatusReport> report = new Progress<StatusReport>();
+
+            report.ProgressChanged += DnsUpdaterReport;
+
+            Progress<ProgressReport> progress = new Progress<ProgressReport>();
+            progress.ProgressChanged += DnsUpdaterRrogress;
 
             if (_currentV4Ip == null)
             {                
-                CurrentV4iP = await _porkbunUpdaterService.InitPorkbunUpdater(_dnsDomain, "A", _dnsHost, progress);
-                //Sjekk status om den er initialisert ok
+                var response = await _porkbunUpdaterService.InitPorkbunUpdater(_dnsDomain, "A", _dnsHost, report, cts.Token);
+
+                if (response == "")
+                {
+                    StatusWindowUpdater("STOP!!");
+                    ShowStartButton = true;
+                    ShowStopButton = false;
+                    return;
+                }               
+                _currentV4Ip = response;                
             }
-            
-            //alles gut 
-            await _porkbunUpdaterService.ContinuouslyUpdate(_dnsDomain, "A", _dnsHost, checkInterval, CurrentV4iP ,progress);
-            //infinit loop here!!
+
+            CurrentV4iP = _currentV4Ip;
+
+            try
+            {
+                await _porkbunUpdaterService.ContinuouslyUpdate(_dnsDomain, "A", _dnsHost, checkInterval, CurrentV4iP, report, progress, cts.Token);
+
+            }
+            catch (OperationCanceledException)
+            {
+                StatusWindowUpdater("STOP!!");
+            }                        
+        }
+
+        private async Task ExecuteStopDnsUpdater()
+        {
+
+            cts.Cancel();
+            ShowStartButton = true;
+            ShowStopButton = false;
         }
 
         private async Task<bool> QuickCheckConfig()
@@ -133,45 +179,64 @@ namespace PorkbunDnsUpdater.ViewModels
 
             if (string.IsNullOrEmpty(key) || string.IsNullOrEmpty(secret)) 
             {
-                DnsProgress = "Missing ApiKey / Secret config...";
+
+                StatusWindowUpdater("Missing ApiKey / Secret config...", false);                
                 await Task.Delay(2000);
-                DnsProgress += "Stop!";
+                StatusWindowUpdater("STOP!!");
                 return false;
             }
 
             if (string.IsNullOrEmpty(_dnsDomain))
             {
-                DnsProgress = "Enter Domain to update...";
+                StatusWindowUpdater("Enter Domain to update...", false);                
                 await Task.Delay(2000);
-                DnsProgress += "Stop!";
+                StatusWindowUpdater("STOP!!");
                 return false;
             }
 
             if (string.IsNullOrEmpty(_dnsHost))
             {
-                DnsProgress = "Enter host name to update...";
+                StatusWindowUpdater("Enter hostname to update...", false);
                 await Task.Delay(2000);
-                DnsProgress += "Stop!";
+                StatusWindowUpdater("STOP!!");
                 return false;
             }
 
             return true;
         }
 
-        private void DnsUpdaterReport(object? sender, string e)
+        private void DnsUpdaterReport(object? sender, StatusReport e)
         {
-            DnsProgress += e;
+            StatusWindowUpdater(e.Content, e.Newline);
+        }
+        
+        private void DnsUpdaterRrogress(object? sender, ProgressReport e)   
+        {
+            var her = e.Content;
+            CurrentV4iP = e.Message + DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss");
+
+        }
+
+
+        private void StatusWindowUpdater(string logg, bool newLine = true)
+        {
+
+            var textToPrint = "";
+            if (newLine) 
+            { 
+                textToPrint = Environment.NewLine;
+                textToPrint += DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss") + ": ";
+            }
+            
+            textToPrint += logg;
+            DnsProgress += textToPrint;
         }
 
         private bool CanExecuteStartDnsUpdater()
         {
             return true;
         }
-
-        private async Task ExecuteStopDnsUpdater()
-        {
-            return;
-        }
+               
 
         private int IntervalConverter(string name)
         {

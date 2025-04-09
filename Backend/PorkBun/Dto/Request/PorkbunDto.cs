@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace PorkbunDnsUpdater.Backend.PorkBun.Dto
+namespace PorkbunDnsUpdater.Backend.PorkBun.Dto.Request
 {
     public class PorkbunDto
     {

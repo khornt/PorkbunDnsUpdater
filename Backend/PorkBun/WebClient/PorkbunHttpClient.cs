@@ -3,7 +3,7 @@ using System.Net.Http;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using PorkbunDnsUpdater.Backend.PorkBun.Dto;
+using PorkbunDnsUpdater.Backend.PorkBun.Dto.Request;
 using PorkbunDnsUpdater.Backend.PorkBun.Dto.Response;
 using PorkbunDnsUpdater.Backend.PorkBun.Dto.Response.JsonToCSharp;
 using PorkbunDnsUpdater.Models;
@@ -26,7 +26,7 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
         }
 
 
-        public async Task<PingV4Response> Ping()
+        public async Task<PingV4Response> Ping(CancellationToken ct)
         {
             try
             {
@@ -34,7 +34,7 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
                 {                   
                     request.Content = new StringContent(CreatePingRequest(), Encoding.UTF8, "application/json");
 
-                    using (var httpResponse = await _httpClient.SendAsync(request, CancellationToken.None))
+                    using (var httpResponse = await _httpClient.SendAsync(request, ct))
                     {
                         if (httpResponse.IsSuccessStatusCode)
                         {
@@ -57,83 +57,48 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
                 return null;
             }
         }
-                
 
-        public async Task<bool> PostUpdateChallengeRecord(string challenge, string fqdn)
-        {
-            try
+        public async Task<PorkbunRecordResponse?> GetPorkbunRecord(string domain, string type, string subdomain, CancellationToken ct)
+
+        {            
+            string? curentPorkbunIp = null;
+            var requestUrl = _appConfig.PorkbunApiUrl + "/dns/retrieveByNameType/" + domain + "/" + type + "/" + subdomain;
+
+            using (var request = new HttpRequestMessage(HttpMethod.Post, requestUrl))
             {
-                using (var request = new HttpRequestMessage(HttpMethod.Post, _appConfig.PorkbunApiUrl + "/ping"))
+                var stringPayload = CreateRequest();
+                request.Content = new StringContent(stringPayload, Encoding.UTF8, "application/json");
+
+                using (var httpResponse = await _httpClient.SendAsync(request, ct))
                 {
-                    var stringPayload = CreateRequest();
-                    request.Content = new StringContent(stringPayload, Encoding.UTF8, "application/json");
-
-
-                    using (var httpResponse = await _httpClient.SendAsync(request, CancellationToken.None))
+                    var response = await httpResponse.Content.ReadAsStringAsync();
+                    if (httpResponse.IsSuccessStatusCode)
                     {
-                        if (httpResponse.IsSuccessStatusCode)
-                        {
-                            return true;
-                        }
-                        else
-                        {
-                            return false;
-                        }
+                        
+                        var respDto = JsonConvert.DeserializeObject<PorkbunRecordResponse>(response);                                                 
+                        return respDto;
                     }
-                }
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-
-        public async Task<string?> GetPorkbunRecord(string domain, string type, string subdomain)
-
-        {
-            try
-            {
-                string? curentPorkbunIp = null;
-                var requestUrl = _appConfig.PorkbunApiUrl + "/dns/retrieveByNameType/" + domain + "/" + type + "/" + subdomain;
-
-
-                using (var request = new HttpRequestMessage(HttpMethod.Post, requestUrl))
-                {
-                    var stringPayload = CreateRequest();
-                    request.Content = new StringContent(stringPayload, Encoding.UTF8, "application/json");
-
-
-                    using (var httpResponse = await _httpClient.SendAsync(request, CancellationToken.None))
+                    else
                     {
-                        if (httpResponse.IsSuccessStatusCode)
+                        try
                         {
-                            var response = await httpResponse.Content.ReadAsStringAsync();
+                            return JsonConvert.DeserializeObject<PorkbunRecordResponse>(response);
 
-                            var respDto = JsonConvert.DeserializeObject<PorkbunRecordResponse>(response);                         
-                            if (respDto != null && respDto.Records.Count > 0)
+                        } catch (Exception ex)
+                        {
+                            return new PorkbunRecordResponse
                             {
-                               curentPorkbunIp = respDto.Records.First().Content;
-                            }
-
-                            return curentPorkbunIp;
-                        }
-                        else
-                        {
-                            var response = await httpResponse.Content.ReadAsStringAsync();                            
-                            return null;
-                        }
+                                Status = "ERROR",
+                                Message = "Failed to deserialize message from Porkbun"
+                            };
+                        }                                                
                     }
                 }
-            }
-            catch
-            {
-                return null;
-            }
+            }         
         }
 
 
-        public async Task<string?> UpdatePorkbunRecord(string domain, string type, string subdomain, string myNewIp)
+        public async Task<PorkbunRecordResponse> UpdatePorkbunRecord(string domain, string type, string subdomain, string myNewIp, CancellationToken ct)
         {
             try
             {
@@ -146,32 +111,31 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
                     var stringPayload = CreateRequest(myNewIp);
                     request.Content = new StringContent(stringPayload, Encoding.UTF8, "application/json");
 
-
-                    using (var httpResponse = await _httpClient.SendAsync(request, CancellationToken.None))
+                    using (var httpResponse = await _httpClient.SendAsync(request, ct))
                     {
+                        var response = await httpResponse.Content.ReadAsStringAsync();
+
                         if (httpResponse.IsSuccessStatusCode)
-                        {
-                            var response = await httpResponse.Content.ReadAsStringAsync();
-
-                            var respDto = JsonConvert.DeserializeObject<PorkbunRecordResponse>(response);
-                            if (respDto?.Records != null && respDto.Records.Count > 0)
-                            {
-                                curentPorkbunIp = respDto.Records.First().Content;
-                            }
-
-                            return curentPorkbunIp;
+                        {                            
+                            var responseDto = JsonConvert.DeserializeObject<PorkbunRecordResponse>(response);
+                            return responseDto; 
+                         
                         }
                         else
                         {
-                            var response = await httpResponse.Content.ReadAsStringAsync();
-                            return null;
+                            var responseDto = JsonConvert.DeserializeObject<PorkbunRecordResponse>(response);
+                            return responseDto;
                         }
                     }
                 }
             }
             catch
             {
-                return null;
+                return new PorkbunRecordResponse
+                {
+                    Status = "ERROR",
+                    Message = "Failed to deserialize message from Porkbun"
+                };
             }
         }
 

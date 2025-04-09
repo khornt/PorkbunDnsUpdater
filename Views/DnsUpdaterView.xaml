@@ -7,15 +7,15 @@
         mc:Ignorable="d"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         Background="#1E1E1E" Foreground="White">
-
-
-
-
     <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BToVConverter" />
+        
         <Style TargetType="Button" x:Key="MyButtonStyle">
             <Setter Property="OverridesDefaultStyle" Value="True" />
             <Setter Property="Background" Value="Black" />
             <Setter Property="Foreground" Value="White" />
+
+            
 
             <Setter Property="Template">
                 <Setter.Value>
@@ -59,7 +59,8 @@
 
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="70"/>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="40"/>
             <RowDefinition Height="40"/>
             <RowDefinition Height="40"/>
             <RowDefinition Height="60"/>
@@ -68,16 +69,17 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Label Grid.Column="0" Grid.ColumnSpan="5" Content="Porkbun DynDns Updater!"  Name="FileLabel"
-               FontSize="24"  Margin="10,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
+        <Label Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="5" Content="Porkbun DynDns Updater!"  Name="FileLabel"
+               FontSize="24" Padding="0,10,0,0" Margin="10,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
                Width="420" Height="46" Foreground="White"/>
 
+        <Label Grid.Row="1" Grid.Column="0"  Content="Ipv4:" Padding="0,5,0,0" Margin="10,0,0,0" FontSize="16" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White"  Height="30" Width="70" />
+        <Label Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"  Content="{Binding CurrentV4iP}" Padding="0,5,0,0"  Margin="1,0,0,0" FontSize="16" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White"  Height="30" Width="100" />
 
-        <Label Content="Interval:" Margin="10,0,0,0" FontSize="16" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White" Grid.Row="1" Height="30" Width="70" />
-
+        <Label Grid.Row="2" Grid.Column="0"  Content="Interval:" Padding="0,5,0,0" Margin="10,0,0,0" FontSize="16" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White"  Height="30" Width="70" />
 
         <ComboBox Background="White" Foreground="Black"
-              Grid.Row="1"
+              Grid.Row="2"
               Grid.Column="1"
               Grid.ColumnSpan="3"
               FontSize="14"
@@ -100,40 +102,43 @@
             </ComboBox.Resources>
         </ComboBox>
 
-        <Label Content="Host:" Margin="10,0,0,0" FontSize="16" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White" Grid.Row="2" Height="30" Width="50" />
+        <Label Grid.Row="3"  Grid.Column="0" Content="Host:" Padding="0,5,0,0" Margin="10,0,0,0" FontSize="16" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White" Height="30" Width="50" />
 
-        <TextBox Name="txtHost" Text="{Binding DnsHost, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" 
+        <TextBox  Grid.Row="3" Grid.Column="1" Name="txtHost" Text="{Binding DnsHost, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" 
                 FontSize="16" TextAlignment="Left" VerticalAlignment="Top" Height="25" Width="80" Margin="0,5,0,0" Padding="2,0,0,0"
                 Background="#333333" Foreground="White"
-                BorderBrush="#555555" Grid.Row="2" Grid.Column="1"/>
+                BorderBrush="#555555"/>
 
-        <Label Content="Domain:" FontSize="16" HorizontalAlignment="Left" VerticalAlignment="Top"
-                Margin="10,0,0,0" Foreground="White" Grid.Row="2" Grid.Column="2"/>
+        <Label Grid.Row="3" Grid.Column="2" Content="Domain:" FontSize="16" HorizontalAlignment="Left" VerticalAlignment="Top"
+                Padding="0,5,0,0" Margin="10,0,0,0" Foreground="White" />
 
 
-        <TextBox Name="txtDomain" Text="{Binding DnsDomain, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" 
+        <TextBox Grid.Row="3" Grid.Column="3" Grid.ColumnSpan="2" Name="txtDomain" Text="{Binding DnsDomain, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" 
                  FontSize="16" TextAlignment="Left" VerticalAlignment="Top" Height="25" Width="120" Margin="0,5,0,0" Padding="2,0,0,0"
-                 Background="#333333" Foreground="White" Grid.ColumnSpan="2"
-                 BorderBrush="#555555" Grid.Row="2" Grid.Column="3"/>
+                 Background="#333333" Foreground="White" 
+                 BorderBrush="#555555" />
 
     
 
-        <Button Grid.Row="3"
+        <Button Grid.Row="4"
                 Grid.Column="0"
                 Width="110" Height="30"
+                Visibility="{Binding Path=ShowStartButton, Converter={StaticResource BToVConverter}}"
                 Content="Start update" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="15,0,0,0"        
-                Command="{Binding StartDnsUpdater}"
+                Command="{Binding StartDnsUpdater}"                
                 Style="{StaticResource ResourceKey =MyButtonStyle}" Grid.ColumnSpan="2"/>
 
-        <Button Grid.Row="3"
-            Grid.Column="1"
+        <Button 
+            Grid.Row="4"
+            Grid.Column="0"
             Width="110" Height="30"
+            Visibility="{Binding Path=ShowStopButton, Converter={StaticResource BToVConverter}}"
             Content="Stop update" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="15,0,0,0"
             Command="{Binding StopDnsUpdater}"
             Style="{StaticResource ResourceKey =MyButtonStyle}" Grid.ColumnSpan="2"/>
 
 
-        <TextBox Grid.Row="4"
+        <TextBox Grid.Row="5"
              Grid.Column="0"
              Grid.ColumnSpan="7"
              FontSize="14"
