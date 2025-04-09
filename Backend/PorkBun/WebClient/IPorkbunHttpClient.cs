@@ -11,9 +11,9 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
     public interface IPorkbunHttpClient
     {
 
-        Task<PingV4Response> Ping(CancellationToken ct);      
+        Task<PingV4Response?> Ping(CancellationToken ct);      
         Task<PorkbunRecordResponse?> GetPorkbunRecord(string domain, string type, string subdomain, CancellationToken ct);
-        Task<PorkbunRecordResponse> UpdatePorkbunRecord(string domain, string type, string subdomain, string myIp, CancellationToken ct);
+        Task<PorkbunRecordResponse?> UpdatePorkbunRecord(string domain, string type, string subdomain, string myIp, CancellationToken ct);
 
         
     }

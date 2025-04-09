@@ -24,9 +24,7 @@ namespace PorkbunDnsUpdater.Commands
 
 
         protected override bool CanExecute(object? parameter)
-        {
-
-            //Implement is executing fra base class
+        {            
             if (_canExecute == null)
             {
                 return true;
@@ -35,7 +33,7 @@ namespace PorkbunDnsUpdater.Commands
             return _canExecute(parameter is T p ? p : default);
         }
 
-        protected override async void Execute(object parameter)
+        protected override async void Execute(object? parameter)
         {
             await ExecuteAsync(parameter);
         }
@@ -79,7 +77,6 @@ namespace PorkbunDnsUpdater.Commands
 
     }
 
-
     public class TaskDelegateCommand : DelegateCommandBase, ICommand
     {
         private readonly Func<Task> _task;
@@ -116,7 +113,7 @@ namespace PorkbunDnsUpdater.Commands
             return _canExecute();
         }
 
-        protected override async void Execute(object parameter)
+        protected override async void Execute(object? parameter)
         {
             await ExecuteAsync(parameter);
         }

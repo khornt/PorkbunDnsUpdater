@@ -11,20 +11,20 @@ namespace PorkbunDnsUpdater.ViewModels
     public class DnsUpdaterViewModel : ViewModelBase
     {
 
-        CancellationTokenSource cts;
+        CancellationTokenSource? cts;
         private readonly INavigationService _navigationService;
         private readonly PorkbunUpdaterService _porkbunUpdaterService;
         private readonly AppConfig _appConfig;
 
-        private string _currentV4Ip;
-        private string _currentV6Ip;
-        private string _dnsHost;
-        private string _dnsDomain;
+        private string? _currentV4Ip;
+        private string? _currentV6Ip;
+        private string? _dnsHost;
+        private string? _dnsDomain;
                
 
         private string _checkInterval;
-        private string _dnsRecord;
-        private string _dnsProgress;
+        private string? _dnsRecord;
+        private string? _dnsProgress;
         private bool _showStartButton;
         private bool _showStopButton;
 
@@ -37,7 +37,7 @@ namespace PorkbunDnsUpdater.ViewModels
 
             IntervalDropDown = appConfig.PorkbunIntervals;
             StartDnsUpdater = new TaskDelegateCommand(ExecuteStartDnsUpdater, CanExecuteStartDnsUpdater).ObservesProperty(() => DnsProgress);
-            StopDnsUpdater = new TaskDelegateCommand(ExecuteStopDnsUpdater);
+            StopDnsUpdater = new DelegateCommand(ExecuteStopDnsUpdater);
             _showStopButton = false;
             _showStartButton = true;
         }
@@ -50,31 +50,31 @@ namespace PorkbunDnsUpdater.ViewModels
         //public bool ShowStartButton { get; set; } = true;
         //public bool ShowStopButton { get; set; } = true;    
 
-        public string CurrentV4iP
+        public string? CurrentV4iP
         {
             get { return _currentV4Ip; }
             set { _currentV4Ip = value; OnPropertyChanged("CurrentV4iP"); }
         }
 
-        public string CurrentV6iP
+        public string? CurrentV6iP
         {
             get { return _currentV6Ip; }
             set { _currentV6Ip = value; OnPropertyChanged("CurrentV6iP"); }
         }
 
-        public string DnsHost
+        public string? DnsHost
         {
             get { return _dnsHost; }
             set { _dnsHost= value; OnPropertyChanged("DnsHost"); }
         }
 
-        public string DnsDomain
+        public string? DnsDomain
         {
             get { return _dnsDomain; }
             set { _dnsDomain = value; OnPropertyChanged("DnsDomain"); }
         }
 
-        public string DnsRecord
+        public string? DnsRecord
         {
             get { return _dnsRecord; }
             set { _dnsRecord = value; OnPropertyChanged("DnsRecord"); }
@@ -87,7 +87,7 @@ namespace PorkbunDnsUpdater.ViewModels
         }
 
 
-        public string DnsProgress
+        public string? DnsProgress
         {
             get { return _dnsProgress; }
             set { _dnsProgress = value; OnPropertyChanged("DnsProgress"); }
@@ -139,7 +139,7 @@ namespace PorkbunDnsUpdater.ViewModels
 
             if (_currentV4Ip == null)
             {                
-                var response = await _porkbunUpdaterService.InitPorkbunUpdater(_dnsDomain, "A", _dnsHost, report, cts.Token);
+                var response = await _porkbunUpdaterService.InitPorkbunUpdater(_dnsDomain!, "A", _dnsHost!, report, cts.Token);
 
                 if (response == "")
                 {
@@ -155,7 +155,7 @@ namespace PorkbunDnsUpdater.ViewModels
 
             try
             {
-                await _porkbunUpdaterService.ContinuouslyUpdate(_dnsDomain, "A", _dnsHost, checkInterval, CurrentV4iP, report, progress, cts.Token);
+                await _porkbunUpdaterService.ContinuouslyUpdate(_dnsDomain!, "A", _dnsHost!, checkInterval, CurrentV4iP, report, progress, cts.Token);
 
             }
             catch (OperationCanceledException)
@@ -164,7 +164,7 @@ namespace PorkbunDnsUpdater.ViewModels
             }                        
         }
 
-        private async Task ExecuteStopDnsUpdater()
+        private void ExecuteStopDnsUpdater()
         {
 
             cts.Cancel();
@@ -211,10 +211,11 @@ namespace PorkbunDnsUpdater.ViewModels
         }
         
         private void DnsUpdaterRrogress(object? sender, ProgressReport e)   
-        {
-            var her = e.Content;
-            CurrentV4iP = e.Message + DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss");
-
+        {            
+            if (!string.IsNullOrEmpty(e.Ip4)) 
+            {
+                CurrentV4iP = e.Ip4;
+            }
         }
 
 
@@ -225,7 +226,7 @@ namespace PorkbunDnsUpdater.ViewModels
             if (newLine) 
             { 
                 textToPrint = Environment.NewLine;
-                textToPrint += DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss") + ": ";
+                textToPrint += DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + ": ";
             }
             
             textToPrint += logg;

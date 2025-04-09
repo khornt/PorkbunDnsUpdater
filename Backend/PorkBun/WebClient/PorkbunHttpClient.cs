@@ -14,8 +14,8 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
     {
                 
         private readonly AppConfig _appConfig;
-        private static HttpClient _httpClient;
-        private static JsonSerializerSettings _jsonFomatter;
+        private static HttpClient _httpClient;  //di
+        private static JsonSerializerSettings _jsonFomatter; //di
 
 
         public PorkbunHttpClient(AppConfig appConfig)
@@ -26,7 +26,7 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
         }
 
 
-        public async Task<PingV4Response> Ping(CancellationToken ct)
+        public async Task<PingV4Response?> Ping(CancellationToken ct)
         {
             try
             {
@@ -60,8 +60,7 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
 
         public async Task<PorkbunRecordResponse?> GetPorkbunRecord(string domain, string type, string subdomain, CancellationToken ct)
 
-        {            
-            string? curentPorkbunIp = null;
+        {                        
             var requestUrl = _appConfig.PorkbunApiUrl + "/dns/retrieveByNameType/" + domain + "/" + type + "/" + subdomain;
 
             using (var request = new HttpRequestMessage(HttpMethod.Post, requestUrl))
@@ -84,7 +83,7 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
                         {
                             return JsonConvert.DeserializeObject<PorkbunRecordResponse>(response);
 
-                        } catch (Exception ex)
+                        } catch
                         {
                             return new PorkbunRecordResponse
                             {
@@ -98,13 +97,11 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
         }
 
 
-        public async Task<PorkbunRecordResponse> UpdatePorkbunRecord(string domain, string type, string subdomain, string myNewIp, CancellationToken ct)
+        public async Task<PorkbunRecordResponse?> UpdatePorkbunRecord(string domain, string type, string subdomain, string myNewIp, CancellationToken ct)
         {
             try
-            {
-                string? curentPorkbunIp = null;
+            {                
                 var requestUrl = _appConfig.PorkbunApiUrl + "/dns/editByNameType/" + domain + "/" + type + "/" + subdomain;
-
 
                 using (var request = new HttpRequestMessage(HttpMethod.Post, requestUrl))
                 {
@@ -119,7 +116,6 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
                         {                            
                             var responseDto = JsonConvert.DeserializeObject<PorkbunRecordResponse>(response);
                             return responseDto; 
-                         
                         }
                         else
                         {
@@ -139,7 +135,6 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
             }
         }
 
-
         private string CreateRequest()
         {
 
@@ -147,7 +142,6 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
             {
                 Apikey = _appConfig.PorkbunApiKey,
                 Secretapikey = _appConfig.PorkbunApiSecret
-
             };
 
             var jsonPayload = JsonConvert.SerializeObject(dto, _jsonFomatter);
