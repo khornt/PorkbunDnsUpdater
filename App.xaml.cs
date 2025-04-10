@@ -3,8 +3,8 @@ using System.Windows;
 using PorkbunDnsUpdater.ViewModels;
 using PorkbunDnsUpdater.Services;
 using PorkbunDnsUpdater.Backend.PorkBun.WebClient;
-using PorkbunDnsUpdater.Stores;
 using PorkbunDnsUpdater.Models;
+using PorkbunDnsUpdater.View;
 
 namespace PorkbunDnsUpdater
 {
@@ -17,66 +17,97 @@ namespace PorkbunDnsUpdater
         public App()
         {
 
-            _notifyIcon = new NotifyIcon();
-
+            ///_notifyIcon = new NotifyIcon();
             IServiceCollection services = new ServiceCollection();
 
-            
-            services.AddSingleton<NavigationStore>();            
+            services.AddSingleton<NotifyIcon>();
             services.AddSingleton<AppConfig>();
 
             services.AddSingleton<IPorkbunHttpClient, PorkbunHttpClient>();
             services.AddSingleton<PorkbunUpdaterService>(s => new PorkbunUpdaterService(s.GetRequiredService<IPorkbunHttpClient>()));
 
-            services.AddSingleton<MainViewModel>(s => new MainViewModel(
-                    s.GetRequiredService<NavigationStore>(),
-                    CreateDnsUpdaterService(s)
-                ));
+            services.AddSingleton<DnsUpdaterViewModel>();                      
 
-            services.AddSingleton<MainWindow>(s => new MainWindow()
+            services.AddSingleton<DnsUpdaterView>(s => new DnsUpdaterView(s.GetRequiredService<NotifyIcon>())
             {
-                DataContext = s.GetRequiredService<MainViewModel>()
+               
+                DataContext = s.GetRequiredService<DnsUpdaterViewModel>()
             });
-
             
-            
-            services.AddSingleton<INavigationService>(s => CreateDnsUpdaterService(s));
-                        services.AddTransient<DnsUpdaterViewModel>(s => new DnsUpdaterViewModel(CreateDnsUpdaterService(s), s.GetRequiredService<AppConfig>(), s.GetRequiredService<PorkbunUpdaterService>()));
-            
-            _serviceProvider = services.BuildServiceProvider();
+            _serviceProvider = services.BuildServiceProvider();            
         }
 
         protected override void OnStartup(StartupEventArgs e)
         {
-            StartUpNavigate(_serviceProvider).Navigate();
+                     
+            MainWindow = _serviceProvider.GetRequiredService<DnsUpdaterView>();
             
-            MainWindow = _serviceProvider.GetRequiredService<MainWindow>();
-                        
-            _notifyIcon.Icon = new System.Drawing.Icon("Resources/dns.ico");
-            _notifyIcon.Visible = true;
-            _notifyIcon.Text = "DNS Updater";
-            MainWindow.Show();
+            
 
+            SetupNotify();           
+            MainWindow.Show();
             base.OnStartup(e);
         }
 
-        protected override void OnExit(ExitEventArgs e)
+
+        private void SetupNotify()
         {
-            _notifyIcon.Dispose();
+
+            var notifyer = _serviceProvider.GetRequiredService<NotifyIcon>();
+
+            notifyer.Icon = new System.Drawing.Icon("Resources/dns.ico");
+            notifyer.Visible = true;
+            notifyer.Text = "DNS Updater";
+            //_notifyIcon.Click += _notifyIcon_Click;
+
+            notifyer.ContextMenuStrip = new ContextMenuStrip();
+
+            notifyer.ContextMenuStrip.Items.Add("Show", null, OnShowClicked);
+            notifyer.ContextMenuStrip.Items.Add("About", null, OnAboutClicked);
+            notifyer.ContextMenuStrip.Items.Add("Exit",null, OnExitClicked);
+
+        }
+
+        private void OnAboutClicked(object? sender, EventArgs e)
+        {
+                       
+
+            System.Windows.MessageBox.Show(CreateAboutText(), "Dynamic DNS Client", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void OnExitClicked(object? sender, EventArgs e)
+        {            
+            System.Windows.Application.Current.Shutdown();           
+        }
+
+        private void OnShowClicked(object? sender, EventArgs e)
+        {
+            MainWindow = _serviceProvider.GetRequiredService<DnsUpdaterView>();
+            MainWindow.Show();
+
+            MainWindow.WindowState = WindowState.Normal;
+            MainWindow.Activate();
+        }
+
+        protected override void OnActivated(EventArgs e)
+        {
+            base.OnActivated(e);
+        }
+
+        protected override void OnExit(ExitEventArgs e)
+        {                        
             base.OnExit(e);
         }
 
+        private string CreateAboutText()
+        {
+            var about = "Dynamic DNS Client (0.9) for Porkbun DNS" + Environment.NewLine;
+            about += "Copyright © 2025 Horntvedt.com. No rights reserved" + Environment.NewLine + Environment.NewLine;
 
-        private IStartUpNavigate StartUpNavigate(IServiceProvider serviceProvider)
-        {
-            return new NavigationService<DnsUpdaterViewModel>(serviceProvider.GetRequiredService<NavigationStore>(),
-                () => serviceProvider.GetRequiredService<DnsUpdaterViewModel>());
+            about += "Credits: None";
+
+            return about;
         }
-        
-        private INavigationService CreateDnsUpdaterService(IServiceProvider serviceProvider)
-        {
-            return new NavigationService<DnsUpdaterViewModel>(serviceProvider.GetRequiredService<NavigationStore>(),
-                () => serviceProvider.GetRequiredService<DnsUpdaterViewModel>());
-        }
+
     }
 }

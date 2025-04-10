@@ -10,7 +10,7 @@ namespace PorkbunDnsUpdater.ViewModels
     {
 
         CancellationTokenSource? cts;
-        private readonly INavigationService _navigationService;
+       
         private readonly PorkbunUpdaterService _porkbunUpdaterService;
         private readonly AppConfig _appConfig;
 
@@ -25,9 +25,8 @@ namespace PorkbunDnsUpdater.ViewModels
         private bool _showStopButton;
 
 
-        public DnsUpdaterViewModel(INavigationService navigationService, AppConfig appConfig, PorkbunUpdaterService porkbunUpdaterService)
-        {
-            _navigationService = navigationService;
+        public DnsUpdaterViewModel(AppConfig appConfig, PorkbunUpdaterService porkbunUpdaterService)
+        {            
             _appConfig = appConfig;
             _porkbunUpdaterService = porkbunUpdaterService;
 

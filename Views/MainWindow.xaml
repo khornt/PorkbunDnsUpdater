@@ -7,15 +7,13 @@
         xmlns:vms="clr-namespace:PorkbunDnsUpdater.ViewModels"        
         xmlns:view="clr-namespace:PorkbunDnsUpdater.View"
         Background="#1E1E1E" Foreground="White"
-        d:DataContext="{d:DesignInstance Type=vms:MainViewModel}"
+        d:DataContext="{d:DesignInstance Type=vms:MainViewModel}"        
         Title="DNS Updater" Height="520" Width="580">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="0"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-
-    
         <StackPanel>
             <Grid>
 
@@ -50,7 +48,7 @@
 
 
                 </Grid.Resources>
-            <ContentControl Content="{Binding CurrentViewModel}" />
+            <ContentControl Content="{Binding DnsUpdaterViewModel}" />
             </Grid>
         </StackPanel>
     </Grid>
