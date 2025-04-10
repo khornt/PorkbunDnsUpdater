@@ -11,7 +11,7 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.Dto.Response
 
     namespace JsonToCSharp
     {
-        public class Record
+        public class PorkbunRecord
         {
             public string? Id { get; set; }
             public string? Name { get; set; }
@@ -27,7 +27,7 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.Dto.Response
             public string? Status { get; set; }
             public string? Message { get; set; }
             public string? Cloudflare { get; set; }
-            public List<Record>? Records { get; set; }
+            public List<PorkbunRecord>? Records { get; set; }
         }
     }
 }

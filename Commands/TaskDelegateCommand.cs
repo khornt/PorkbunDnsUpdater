@@ -98,7 +98,6 @@ namespace PorkbunDnsUpdater.Commands
         protected override bool CanExecute(object? parameter)
         {
 
-
             if (IsExecuting)
             {
                 return false;

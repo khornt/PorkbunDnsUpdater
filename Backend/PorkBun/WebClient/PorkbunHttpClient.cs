@@ -1,5 +1,4 @@
-﻿
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -14,14 +13,13 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
     {
                 
         private readonly AppConfig _appConfig;
-        private static HttpClient _httpClient;  //di
-        private static JsonSerializerSettings _jsonFomatter; //di
-
+        private static readonly HttpClient _httpClient = new();
+        private static JsonSerializerSettings? _jsonFomatter;
 
         public PorkbunHttpClient(AppConfig appConfig)
         {
             _appConfig = appConfig;
-            _httpClient = new HttpClient();
+            //_httpClient = new HttpClient();
             _jsonFomatter = JsonFormatter();
         }
 
@@ -58,10 +56,10 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
             }
         }
 
-        public async Task<PorkbunRecordResponse?> GetPorkbunRecord(string domain, string type, string subdomain, CancellationToken ct)
+        public async Task<PorkbunRecordResponse?> GetPorkbunRecord(Record record, CancellationToken ct)
 
         {                        
-            var requestUrl = _appConfig.PorkbunApiUrl + "/dns/retrieveByNameType/" + domain + "/" + type + "/" + subdomain;
+            var requestUrl = _appConfig.PorkbunApiUrl + "/dns/retrieveByNameType/" + record.Domain + "/" + record.Type + "/" + record.HostName;
 
             using (var request = new HttpRequestMessage(HttpMethod.Post, requestUrl))
             {
@@ -70,10 +68,9 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
 
                 using (var httpResponse = await _httpClient.SendAsync(request, ct))
                 {
-                    var response = await httpResponse.Content.ReadAsStringAsync();
+                    var response = await httpResponse.Content.ReadAsStringAsync(ct);
                     if (httpResponse.IsSuccessStatusCode)
-                    {
-                        
+                    {                        
                         var respDto = JsonConvert.DeserializeObject<PorkbunRecordResponse>(response);                                                 
                         return respDto;
                     }
@@ -97,11 +94,11 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
         }
 
 
-        public async Task<PorkbunRecordResponse?> UpdatePorkbunRecord(string domain, string type, string subdomain, string myNewIp, CancellationToken ct)
+        public async Task<PorkbunRecordResponse?> UpdatePorkbunRecord(Record record, string myNewIp, CancellationToken ct)
         {
             try
             {                
-                var requestUrl = _appConfig.PorkbunApiUrl + "/dns/editByNameType/" + domain + "/" + type + "/" + subdomain;
+                var requestUrl = _appConfig.PorkbunApiUrl + "/dns/editByNameType/" + record.Domain + "/" + record.Type + "/" + record.HostName;
 
                 using (var request = new HttpRequestMessage(HttpMethod.Post, requestUrl))
                 {
@@ -110,7 +107,7 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
 
                     using (var httpResponse = await _httpClient.SendAsync(request, ct))
                     {
-                        var response = await httpResponse.Content.ReadAsStringAsync();
+                        var response = await httpResponse.Content.ReadAsStringAsync(ct);
 
                         if (httpResponse.IsSuccessStatusCode)
                         {                            
@@ -137,7 +134,6 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
 
         private string CreateRequest()
         {
-
             var dto = new PorkbunDto
             {
                 Apikey = _appConfig.PorkbunApiKey,
@@ -158,16 +154,11 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
                 Secretapikey = _appConfig.PorkbunApiSecret,
                 Content = myNewIp,
                 Ttl = "600"
-
             };
 
             var jsonPayload = JsonConvert.SerializeObject(dto, _jsonFomatter);
             return jsonPayload;
-
         }
-
-
-
 
         private string CreatePingRequest()
         {

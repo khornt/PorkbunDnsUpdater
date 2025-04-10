@@ -7,14 +7,12 @@ namespace PorkbunDnsUpdater.Commands
     {
         private Action<object> execute = executeAction;
 
-
         public event EventHandler? CanExecuteChanged;
 
         public virtual bool CanExecute(object? parameter)
         {
             return true;
         }
-
 
         public void Execute(object? parameter)
         {
@@ -25,7 +23,5 @@ namespace PorkbunDnsUpdater.Commands
         {
             CanExecuteChanged?.Invoke(this, new EventArgs());
         }
-
-
     }
 }

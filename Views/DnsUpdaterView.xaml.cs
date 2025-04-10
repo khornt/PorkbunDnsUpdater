@@ -1,4 +1,6 @@
 ﻿using System.Windows.Controls;
+using UserControl = System.Windows.Controls.UserControl;
+
 
 namespace PorkbunDnsUpdater.View
 {
