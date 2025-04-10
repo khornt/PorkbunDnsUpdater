@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using PorkbunDnsUpdater.Backend.PorkBun.Dto.Response;
+﻿using PorkbunDnsUpdater.Backend.PorkBun.Dto.Response;
 using PorkbunDnsUpdater.Backend.PorkBun.Dto.Response.JsonToCSharp;
+using PorkbunDnsUpdater.Models;
 
 namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
 {
     public interface IPorkbunHttpClient
     {
-
         Task<PingV4Response?> Ping(CancellationToken ct);      
-        Task<PorkbunRecordResponse?> GetPorkbunRecord(string domain, string type, string subdomain, CancellationToken ct);
-        Task<PorkbunRecordResponse?> UpdatePorkbunRecord(string domain, string type, string subdomain, string myIp, CancellationToken ct);
+        Task<PorkbunRecordResponse?> GetPorkbunRecord(Record record, CancellationToken ct);
+        Task<PorkbunRecordResponse?> UpdatePorkbunRecord(Record record, string myIp, CancellationToken ct);
 
         
     }

@@ -1,8 +1,9 @@
 ﻿using System.Text;
 using PorkbunDnsUpdater.Backend.PorkBun.Dto.Response.JsonToCSharp;
+using PorkbunDnsUpdater.Backend.PorkBun.WebClient;
 using PorkbunDnsUpdater.Models;
 
-namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
+namespace PorkbunDnsUpdater.Services
 {
     public class PorkbunUpdaterService
     {
@@ -15,7 +16,7 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
         }
 
         
-        public async Task<string> InitPorkbunUpdater(string domain, string type, string subdomain, IProgress<StatusReport> report, CancellationToken ct) //progress skal inneholde en del mere
+        public async Task<string> InitDnsUpdaterdater(Record record, IProgress<StatusReport> report, CancellationToken ct) //progress skal inneholde en del mere
         {
             var realIp = await _httpClient.Ping(ct);
                       
@@ -25,7 +26,7 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
                 var reportBack = "Your public IP is: " + realIp.YourIp;
                 report.Report(new StatusReport { Content = reportBack });
 
-                var responseDto = await _httpClient.GetPorkbunRecord(domain, type, subdomain, ct);
+                var responseDto = await _httpClient.GetPorkbunRecord(record, ct);
 
                 if (responseDto == null)
                 {
@@ -59,10 +60,10 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
                     if (realIp.YourIp != currentDnsIp)
                     {
 
-                        reportBack = "Updating DNS Record...";
+                        reportBack = "Updating DNS PorkbunRecord...";
                         report.Report(new StatusReport { Content = reportBack });
                                                                         
-                        var response = await _httpClient.UpdatePorkbunRecord(domain, type, subdomain, realIp.YourIp, ct);
+                        var response = await _httpClient.UpdatePorkbunRecord(record, realIp.YourIp, ct);
 
                         if (response != null && response.Status == "SUCCESS")
                         {
@@ -83,8 +84,7 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
         }
 
 
-        public async Task ContinuouslyUpdate(string domain, string type, string subdomain, int interval,
-            string currentIp,IProgress<StatusReport> report, IProgress<ProgressReport> progress, CancellationToken ct) //progress skal inneholde en del mere
+        public async Task ContinuouslyUpdate(Record record, int interval, string currentIp,IProgress<StatusReport> report, IProgress<ProgressReport> progress, CancellationToken ct) //progress skal inneholde en del mere
         {
             var intervalInSecounds = interval * 60;
             var runIt = true;
@@ -114,12 +114,12 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
                     {
                         report.Report(new StatusReport { Content = "IP has changed!!" });
                         
-                        var updateResponse = await _httpClient.UpdatePorkbunRecord(domain, "A", subdomain, result.YourIp, ct);
+                        var updateResponse = await _httpClient.UpdatePorkbunRecord(record, result.YourIp, ct);
 
                         if (updateResponse?.Status == "SUCCESS")
                         {
-                            var reportBack = $"DNS Record has been updated with IP: {result.YourIp}";
-                            report.Report(new StatusReport { Content = reportBack });                         
+                            var reportBack = $"DNS PorkbunRecord has been updated with IP: {result.YourIp}";
+                            report.Report(new StatusReport { Content = reportBack });
                             currentIp = result.YourIp;
 
                         } else
