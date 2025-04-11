@@ -30,7 +30,6 @@ namespace PorkbunDnsUpdater.Services
 
                 if (responseDto == null)
                 {
-
                     reportBack = "Initialization faild with empty response from Porkbun";
                     report.Report(new StatusReport { Content = reportBack });                    
                     return "";

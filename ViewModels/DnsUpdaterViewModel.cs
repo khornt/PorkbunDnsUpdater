@@ -112,7 +112,7 @@ namespace PorkbunDnsUpdater.ViewModels
             
             if (string.IsNullOrEmpty(CheckInterval))
             {
-                StatusWindowUpdater("Default check interval: 60  min");                
+                StatusWindowUpdater("Default check interval: 60  min");
             }
             
             var checkInterval = IntervalConverter(CheckInterval);
@@ -137,6 +137,8 @@ namespace PorkbunDnsUpdater.ViewModels
                 }               
                 _currentV4Ip = response;                
             }
+
+            StatusWindowUpdater("First scheduled update will be in " + CheckInterval);
 
             CurrentV4iP = _currentV4Ip;
             try

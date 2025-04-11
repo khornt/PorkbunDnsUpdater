@@ -5,6 +5,8 @@ VisualStudioVersion = 17.12.35728.132
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PorkbunDnsUpdater", "PorkbunDnsUpdater.csproj", "{6711983B-24D3-4EA9-80AD-323E738E09F3}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "SetupPB", "..\SetupPB\SetupPB.vdproj", "{5254B060-AAE3-6C0F-2221-F0A744F6F051}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,8 +17,14 @@ Global
 		{6711983B-24D3-4EA9-80AD-323E738E09F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6711983B-24D3-4EA9-80AD-323E738E09F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6711983B-24D3-4EA9-80AD-323E738E09F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5254B060-AAE3-6C0F-2221-F0A744F6F051}.Debug|Any CPU.ActiveCfg = Debug
+		{5254B060-AAE3-6C0F-2221-F0A744F6F051}.Release|Any CPU.ActiveCfg = Release
+		{5254B060-AAE3-6C0F-2221-F0A744F6F051}.Release|Any CPU.Build.0 = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D4DCF014-4A5B-42E1-9470-AED1AD7C6C87}
 	EndGlobalSection
 EndGlobal
