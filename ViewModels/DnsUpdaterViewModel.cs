@@ -105,8 +105,13 @@ namespace PorkbunDnsUpdater.ViewModels
             DnsProgress = "";
 
             var record = await GetDnsRecordToUpdate();
-            
-            if (record == null) return;
+
+            if (record == null)
+            {
+                ShowStartButton = true;
+                ShowStopButton = false;
+                return;
+            }
 
             StatusWindowUpdater("Starting up DnsUpdater!!", false);
             

@@ -55,7 +55,7 @@ namespace PorkbunDnsUpdater
 
             var notifyer = _serviceProvider.GetRequiredService<NotifyIcon>();
 
-            notifyer.Icon = new System.Drawing.Icon("Resources/dns.ico");
+            notifyer.Icon = new System.Drawing.Icon("Resources/dnsSmall.ico");
             notifyer.Visible = true;
             notifyer.Text = "DNS Updater";
             //_notifyIcon.Click += _notifyIcon_Click;
@@ -104,7 +104,7 @@ namespace PorkbunDnsUpdater
             var about = "Dynamic DNS Client (0.9) for Porkbun DNS" + Environment.NewLine;
             about += "Copyright © 2025 Horntvedt.com. No rights reserved" + Environment.NewLine + Environment.NewLine;
 
-            about += "Credits: None";
+            about += "Credits: https://www.flaticon.com/free-icons/dns";
 
             return about;
         }

@@ -14,7 +14,10 @@ namespace PorkbunDnsUpdater.View
         private readonly NotifyIcon _notifyIcon;
         public DnsUpdaterView(NotifyIcon notify)
         {
+
+            
             InitializeComponent();
+                        
             this.SourceInitialized += new EventHandler(OnSourceInitialized);
             _notifyIcon = notify;
 

@@ -6,48 +6,45 @@
         d:DataContext="{d:DesignInstance Type=viewModels:DnsUpdaterViewModel}"
         mc:Ignorable="d"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        Background="#1E1E1E" Foreground="White"
+        Background="Transparent"
         Title="DNS Updater" Height="520" Width="580">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BToVConverter" />
-        
-        <Style TargetType="Button" x:Key="MyButtonStyle">
-            <Setter Property="OverridesDefaultStyle" Value="True" />
-            <Setter Property="Background" Value="Black" />
-            <Setter Property="Foreground" Value="White" />
 
-            
+        <!--<DropShadowEffect x:Key="TextShadow"
+                      ShadowDepth="0"
+                      Color="Black"
+                      Opacity="0.6"
+                      BlurRadius="8"/>-->
 
+        <Style TargetType="TextBox">
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Button}">
-                        <Grid Background="{TemplateBinding Background}">
-                            <ContentPresenter x:Name="MyContentPresenter" 
-                                              Content="{TemplateBinding Content}"
-                                              HorizontalAlignment="Center" 
-                                              VerticalAlignment="Center" />
-                        </Grid>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}"
+                        CornerRadius="6"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}">
+                            <ScrollViewer Margin="0" 
+                                  x:Name="PART_ContentHost"/>
+                        </Border>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-
-            <Style.Triggers>
-                <Trigger Property="IsEnabled" Value="False">
-                    <Setter Property="Background" Value="Black"/>
-                    <Setter Property="Foreground" Value="#666666"/>
-                </Trigger>
-
-                <!--<Trigger Property="IsEnabled" Value="True">
-                    <Setter Property="Background" Value="Black"/>
-                    <Setter Property="Foreground" Value="#666666"/>
-                </Trigger>-->
-
-
-            </Style.Triggers>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="#40FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#444"/>
+            <Setter Property="FontSize" Value="14"/>
         </Style>
+
     </Window.Resources>
 
     <Grid>
+
+        <Grid.Background>
+            <ImageBrush ImageSource="/Images/background.jpg" Stretch="UniformToFill"/>
+        </Grid.Background>
+
 
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="90"/>
@@ -70,9 +67,15 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Label Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="5" Content="Porkbun DynDns Updater!"  Name="FileLabel"
-               FontSize="24" Padding="0,10,0,0" Margin="10,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
-               Width="420" Height="46" Foreground="White"/>
+        <TextBlock Text="Porkbun DynDns Updater"
+           FontSize="26"
+           FontWeight="SemiBold"
+           Foreground="#CCD6F6"
+           Grid.Column="0"
+           Grid.Row="0"
+           Margin="10,10,0,0"
+           Grid.ColumnSpan="5"           
+           HorizontalAlignment="Left"/>    
 
         <Label Grid.Row="1" Grid.Column="0"  Content="Ipv4:" Padding="0,5,0,0" Margin="10,0,0,0" FontSize="16" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White"  Height="30" Width="70" />
         <Label Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"  Content="{Binding CurrentV4iP}" Padding="0,5,0,0"  Margin="1,0,0,0" FontSize="16" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White"  Height="30" Width="100" />
@@ -82,8 +85,9 @@
         <ComboBox Background="White" Foreground="Black"
               Grid.Row="2"
               Grid.Column="1"
-              Grid.ColumnSpan="3"
+              Grid.ColumnSpan="3"                   
               FontSize="14"
+              Cursor="Hand"
               ItemsSource="{Binding IntervalDropDown}"  
               SelectedValue="{Binding CheckInterval, NotifyOnTargetUpdated=True}"
               Name="DropDownList" HorizontalAlignment="Left" VerticalAlignment="Top" Height="25" Width="120" Margin="0,5,0,0">
@@ -92,7 +96,14 @@
                 <Style TargetType="ComboBoxItem">
                     <Setter Property="Background" Value="White"/>
                     <Setter Property="BorderBrush" Value="White"/>
+
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="#3A3A3F"/>
+                        </Trigger>
+                    </Style.Triggers>
                 </Style>
+                                                
             </ComboBox.ItemContainerStyle>
 
             <ComboBox.Resources>
@@ -106,9 +117,13 @@
         <Label Grid.Row="3"  Grid.Column="0" Content="Host:" Padding="0,5,0,0" Margin="10,0,0,0" FontSize="16" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White" Height="30" Width="50" />
 
         <TextBox  Grid.Row="3" Grid.Column="1" Name="txtHost" Text="{Binding DnsHost, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" 
-                FontSize="16" TextAlignment="Left" VerticalAlignment="Top" Height="25" Width="80" Margin="0,5,0,0" Padding="2,0,0,0"
-                Background="#333333" Foreground="White"
-                BorderBrush="#555555"/>
+                FontSize="16" TextAlignment="Left" VerticalAlignment="Top" 
+                Height="25" Width="80" Margin="0,5,0,0" Padding="2,0,0,0"
+                Background="#60000000"
+                Foreground="White"
+                BorderBrush="#3C3C3C"
+                  
+                  />
 
         <Label Grid.Row="3" Grid.Column="2" Content="Domain:" FontSize="16" HorizontalAlignment="Left" VerticalAlignment="Top"
                 Padding="0,5,0,0" Margin="10,0,0,0" Foreground="White" />
@@ -116,27 +131,121 @@
 
         <TextBox Grid.Row="3" Grid.Column="3" Grid.ColumnSpan="2" Name="txtDomain" Text="{Binding DnsDomain, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" 
                  FontSize="16" TextAlignment="Left" VerticalAlignment="Top" Height="25" Width="120" Margin="0,5,0,0" Padding="2,0,0,0"
-                 Background="#333333" Foreground="White" 
-                 BorderBrush="#555555" />
+                 Background="#60000000"
+                 Foreground="White" 
+                 BorderBrush="#3C3C3C"
+                 />
 
-    
+        <Button Content="Start update"
+                Grid.Column="0"
+                Grid.ColumnSpan="2"
+                Grid.Row="4"                
+                Width="110" Height="40"
+                Margin="10,0,0,0"
+                FontWeight="SemiBold"
+                FontSize="14"
+                Foreground="White"
+                Background="#333"
+                BorderBrush="#444"
+                BorderThickness="1"
+                Cursor="Hand"
+                Visibility="{Binding Path=ShowStartButton, Converter={StaticResource BToVConverter}}"
+                Command="{Binding StartDnsUpdater}"                
+                HorizontalAlignment="Left">
+            <Button.Style>
+                <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                        CornerRadius="4">
+                                    <ContentPresenter HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#44D9EF"/>
+                                        <Setter Property="Foreground" Value="Black"/>
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter Property="Background" Value="#2299BB"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Button.Style>
+        </Button>
 
-        <Button Grid.Row="4"
+        <Button Content="Stop update"
+            Grid.Column="0"
+            Grid.ColumnSpan="2"
+            Grid.Row="4"
+        
+            Width="110" Height="40"
+            Margin="10,0,0,0"
+            FontWeight="SemiBold"
+            FontSize="14"
+            Foreground="White"
+            Background="#333"
+            BorderBrush="#444"
+            BorderThickness="1"
+            Cursor="Hand"
+            Command="{Binding StopDnsUpdater}"                
+            Visibility="{Binding Path=ShowStopButton, Converter={StaticResource BToVConverter}}"
+            HorizontalAlignment="Left">
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="4">
+                                        <ContentPresenter HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#44D9EF"/>
+                                    <Setter Property="Foreground" Value="Black"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter Property="Background" Value="#2299BB"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Button.Style>
+            </Button>
+
+
+
+        <!--<Button Grid.Row="4"
                 Grid.Column="0"
                 Width="110" Height="30"
+                Margin="15,0,0,0"
                 Visibility="{Binding Path=ShowStartButton, Converter={StaticResource BToVConverter}}"
-                Content="Start update" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="15,0,0,0"        
+                Content="Start update" HorizontalAlignment="Left" VerticalAlignment="Center" 
                 Command="{Binding StartDnsUpdater}"                
-                Style="{StaticResource ResourceKey =MyButtonStyle}" Grid.ColumnSpan="2"/>
+                Style="{StaticResource ResourceKey =MyButtonStyle}" Grid.ColumnSpan="2"/>-->
 
-        <Button 
+        <!--<Button 
             Grid.Row="4"
             Grid.Column="0"
             Width="110" Height="30"
             Visibility="{Binding Path=ShowStopButton, Converter={StaticResource BToVConverter}}"
             Content="Stop update" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="15,0,0,0"
             Command="{Binding StopDnsUpdater}"
-            Style="{StaticResource ResourceKey =MyButtonStyle}" Grid.ColumnSpan="2"/>
+            Style="{StaticResource ResourceKey =MyButtonStyle}" Grid.ColumnSpan="2"/>-->
 
 
         <TextBox Grid.Row="5"
@@ -146,8 +255,9 @@
              Name="txtDnsProgress" 
              Text="{Binding DnsProgress, UpdateSourceTrigger=PropertyChanged}"
              HorizontalAlignment="Left" TextAlignment="Left" TextWrapping="Wrap" 
-             VerticalAlignment="Top" Height="230" Width="500" Margin="20,0,0,0"
-             Background="#1E1E1E" Padding="5,3,2,0" Foreground="White" BorderBrush="#555555" />
+             VerticalAlignment="Top" Height="230" Width="500" Margin="10,0,0,0"
+             Background="Transparent"
+             Padding="5,3,2,0" Foreground="White" BorderBrush="#555555" />
 
     </Grid>
 </Window>
