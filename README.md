@@ -1,4 +1,4 @@
-# DnsUdater
+# Porkbun Dynamic DNS updater, Ipv4
 Dyndns client for Porkbun
 Todo:
 Hande multiple domain
