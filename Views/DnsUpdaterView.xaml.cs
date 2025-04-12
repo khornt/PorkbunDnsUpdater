@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Interop;
 using UserControl = System.Windows.Controls.UserControl;
 
@@ -55,5 +56,26 @@ namespace PorkbunDnsUpdater.View
 
 
         }
+
+        private void TitleBar_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+                this.DragMove();
+        }
+
+        private void Minimize_Click(object sender, RoutedEventArgs e)
+        {
+            this.Hide();
+            _notifyIcon.ShowBalloonTip(5000, "DnsUpdater", "Exit program from System tray", ToolTipIcon.Info);
+            //this.WindowState = WindowState.Minimized;
+        }
+
+        private void Close_Click(object sender, RoutedEventArgs e)
+        {
+            this.Hide();
+            _notifyIcon.ShowBalloonTip(5000, "DnsUpdater", "Exit program from System tray", ToolTipIcon.Info);
+            //this.Close();
+        }
+
     }
 }

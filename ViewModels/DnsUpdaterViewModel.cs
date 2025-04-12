@@ -91,6 +91,43 @@ namespace PorkbunDnsUpdater.ViewModels
             set { _showStartButton = value; OnPropertyChanged("ShowStartButton"); }
         }
 
+        private int _intervalInMinutes;
+        
+        public int IntervalInMinutes
+        {
+            get { return _intervalInMinutes; }
+            set
+            {
+                _intervalInMinutes = value; 
+                OnPropertyChanged("IntervalInMinutes");
+                OnPropertyChanged("IntervalDisplay");             
+            }
+        }
+        
+
+        public string IntervalDisplay
+        {
+            get
+            {
+                if (IntervalInMinutes == 1440)
+                    return "Interval: 1 day";
+
+                if (IntervalInMinutes >= 60)
+                {
+                    int hours = IntervalInMinutes / 60;
+                    int minutes = IntervalInMinutes % 60;
+                    if (minutes == 0)
+                        return $"Interval: {hours} hour{(hours > 1 ? "s" : "")}";
+                    else
+                        return $"Interval: {hours}h {minutes}m";
+                }
+
+                return $"Interval: {IntervalInMinutes} min";
+            }
+        }
+
+
+
         public List<string> IntervalDropDown { get; }
 
 
@@ -114,13 +151,13 @@ namespace PorkbunDnsUpdater.ViewModels
             }
 
             StatusWindowUpdater("Starting up DnsUpdater!!", false);
+
+            //if (IntervalInMinutes == null)
+            //{
+            //    StatusWindowUpdater("Default check interval: 60  min");
+            //}
             
-            if (string.IsNullOrEmpty(CheckInterval))
-            {
-                StatusWindowUpdater("Default check interval: 60  min");
-            }
-            
-            var checkInterval = IntervalConverter(CheckInterval);
+            //var checkInterval = IntervalConverter(CheckInterval);
             Progress<StatusReport> report = new Progress<StatusReport>();
 
             report.ProgressChanged += DnsUpdaterReport;
@@ -143,12 +180,12 @@ namespace PorkbunDnsUpdater.ViewModels
                 _currentV4Ip = response;                
             }
 
-            StatusWindowUpdater("First scheduled update will be in " + CheckInterval);
+            StatusWindowUpdater("First scheduled update will be in " + IntervalDisplay);
 
             CurrentV4iP = _currentV4Ip;
             try
             {
-                await _porkbunUpdaterService.ContinuouslyUpdate(record, checkInterval, CurrentV4iP, report, progress, cts.Token);
+                await _porkbunUpdaterService.ContinuouslyUpdate(record, _intervalInMinutes, CurrentV4iP, report, progress, cts.Token);
             }
             catch (OperationCanceledException)
             {
@@ -237,29 +274,29 @@ namespace PorkbunDnsUpdater.ViewModels
             return true;
         }
 
-        private int IntervalConverter(string name)
-        {
-            switch (name)
-            {
-                case "15 min":
-                    return 15;
-                case "30 min":
-                    return 30;
-                case "1 hour":
-                    return 60;
-                case "3 hour":
-                    return 180;
-                case "6 hour":
-                    return 360;
-                case "12 hour":
-                    return 720;
-                case "1 day":
-                    return 1440;
-                case "1 min":
-                    return 1;
-                default:
-                    return 60;
-            }
-        }
+        //private int IntervalConverter(string name)
+        //{
+        //    switch (name)
+        //    {
+        //        case "15 min":
+        //            return 15;
+        //        case "30 min":
+        //            return 30;
+        //        case "1 hour":
+        //            return 60;
+        //        case "3 hour":
+        //            return 180;
+        //        case "6 hour":
+        //            return 360;
+        //        case "12 hour":
+        //            return 720;
+        //        case "1 day":
+        //            return 1440;
+        //        case "1 min":
+        //            return 1;
+        //        default:
+        //            return 60;
+        //    }
+        //}
     }
 }

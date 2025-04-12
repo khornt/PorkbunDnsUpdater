@@ -87,7 +87,6 @@ namespace PorkbunDnsUpdater.Services
         {
             var intervalInSecounds = interval * 60;
             var runIt = true;
-            //var pingPong = "|                    |";
                         
             var nextUpdateDue = DateTimeOffset.UtcNow.AddSeconds(intervalInSecounds);
 

@@ -22,7 +22,6 @@ namespace PorkbunDnsUpdater.Commands
             _canExecute = canExecute;
         }
 
-
         protected override bool CanExecute(object? parameter)
         {            
             if (_canExecute == null)
