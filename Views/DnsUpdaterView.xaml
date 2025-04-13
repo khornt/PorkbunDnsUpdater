@@ -19,11 +19,12 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
                         <Border Background="{TemplateBinding Background}"
-                        CornerRadius="6"
-                        BorderBrush="{TemplateBinding BorderBrush}"
-                        BorderThickness="{TemplateBinding BorderThickness}">
+                            CornerRadius="6"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
                             <ScrollViewer Margin="0" 
-                                  x:Name="PART_ContentHost"/>
+                                          
+                                          x:Name="PART_ContentHost"/>
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
@@ -33,30 +34,60 @@
             <Setter Property="BorderBrush" Value="#444"/>
             <Setter Property="FontSize" Value="14"/>
         </Style>
+        
 
+        <Style x:Key="PurpleHoverButton" TargetType="Button">
+            <Setter Property="Background" Value="#2A2A2E"/>
+            <!-- Dark gray -->
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                        CornerRadius="6"
+                        SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#44D9EF"/>
+                                <Setter Property="Foreground" Value="Black"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#2299BB"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
     <Border Background="#1E1E1E"
             CornerRadius="12"
             BorderBrush="#1E1E1E"
             BorderThickness="6">
-
         <Grid>
-
             <Grid.Background>
                 <ImageBrush ImageSource="/Images/background.jpg" Stretch="UniformToFill"/>
             </Grid.Background>
 
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="80"/>
                 <ColumnDefinition Width="90"/>
                 <ColumnDefinition Width="80"/>
                 <ColumnDefinition Width="80"/>
-                <ColumnDefinition Width="80"/>
-                <ColumnDefinition Width="70"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition/>
-
             </Grid.ColumnDefinitions>
+            
             <Grid.RowDefinitions>
                 <RowDefinition Height="40"/>
                 <RowDefinition Height="50"/>
@@ -97,71 +128,22 @@
                                 Foreground="White" 
                                 VerticalAlignment="Center" 
                                 HorizontalAlignment="Center"/>
-                            <Button.Style>
-                                <Style TargetType="Button">
-                                    <Setter Property="Background" Value="Transparent"/>
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="Button">
-                                                <Border Background="{TemplateBinding Background}" CornerRadius="3">
-                                                    <ContentPresenter HorizontalAlignment="Center"
-                                                          VerticalAlignment="Center"/>
-                                                </Border>
-                                                <ControlTemplate.Triggers>
-                                                    <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter Property="Background" Value="#333"/>
-                                                    </Trigger>
-                                                    <Trigger Property="IsPressed" Value="True">
-                                                        <Setter Property="Background" Value="#555"/>
-                                                    </Trigger>
-                                                </ControlTemplate.Triggers>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Style>
-                            </Button.Style>
+
                         </Button>
 
                         <Button Width="30" Height="30"  ToolTip="Close" Click="Close_Click"
                         Background="Transparent" BorderThickness="0"
                         Cursor="Hand">
                             <TextBlock Text="×"  FontSize="14"  Foreground="White"  VerticalAlignment="Center"  HorizontalAlignment="Center"/>
-                            <Button.Style>
-                                <Style TargetType="Button">
-                                    <Setter Property="Background" Value="Transparent"/>
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="Button">
-                                                <Border Background="{TemplateBinding Background}" CornerRadius="3">
-                                                    <ContentPresenter HorizontalAlignment="Center"
-                                                  VerticalAlignment="Center"/>
-                                                </Border>
-                                                <ControlTemplate.Triggers>
-                                                    <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter Property="Background" Value="#902828"/>
-                                                    </Trigger>
-                                                    <Trigger Property="IsPressed" Value="True">
-                                                        <Setter Property="Background" Value="#D62C2C"/>
-                                                    </Trigger>
-                                                </ControlTemplate.Triggers>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Style>
-                            </Button.Style>
                         </Button>
                     </StackPanel>
-
                 </DockPanel>
 
             </Border>
 
-
-
-
-            <TextBlock Text="Porkbun DynDns Updater"
-           Grid.ColumnSpan="5" Grid.Column="0" Grid.Row="1" FontSize="26"
-           FontWeight="SemiBold" Foreground="#CCD6F6" Margin="10,10,0,0" HorizontalAlignment="Left"/>
+            <Label Content="Porkbun DynDns Updater" Name="txtHeader"
+                Grid.ColumnSpan="5" Grid.Column="0" Grid.Row="1" FontSize="26"                       
+                FontWeight="SemiBold" Foreground="#CCD6F6" Margin="0,5,0,0" HorizontalAlignment="Left"/>
 
             <Label Grid.Row="2" Grid.Column="0"  Content="Ipv4:" Padding="0,5,0,0" Margin="10,0,0,0" 
                FontSize="16" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White"  Height="30" Width="70" />
@@ -173,61 +155,27 @@
             <Label Grid.Row="3" Grid.Column="0"  Content="Interval:" Padding="0,5,0,0" Margin="10,0,0,0" FontSize="16"
                HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White"  Height="30" Width="70" />
 
-            <Slider Minimum="0" Maximum="180" TickFrequency="10" Grid.Row="3" Grid.Column="1"
-                Width="140" HorizontalAlignment="Left" Grid.ColumnSpan="3" Padding="0,5,0,0" 
+            <Slider Minimum="0" Maximum="180" TickFrequency="10" Grid.Row="3" Grid.Column="1" Name="progressSlider"
+                Width="140" HorizontalAlignment="Left" Grid.ColumnSpan="3" Padding="0,5,0,0" Cursor="Hand"
+                IsEnabled="{Binding NotRunning}"
                 Margin="0,6,0,0" Value="{Binding IntervalInMinutes, Mode=TwoWay}" IsSnapToTickEnabled="False"
                 Foreground="#66D9EF" Background="Transparent" ToolTip="Set update interval">
             </Slider>
 
-            <Image Grid.Column="5" Grid.Row="1"  Grid.ColumnSpan="2" Grid.RowSpan="3"
-            HorizontalAlignment="Left" VerticalAlignment="Top"
-            Margin="0,10,0,0"  Source="/Images/Justhead.png" />
+            <Image Grid.Column="5" Grid.Row="1"  Grid.ColumnSpan="2" Grid.RowSpan="4"
+                HorizontalAlignment="Left" VerticalAlignment="Top"
+                Margin="40,0,0,10"  Source="/Images/Justhead.png" />
 
             <Label Grid.Row="3" Grid.Column="3" Grid.ColumnSpan="3"  Content="{Binding IntervalDisplay}" 
                Padding="0,2,0,0" Margin="5,0,0,0" FontSize="16" HorizontalAlignment="Left" 
                VerticalAlignment="Top" Foreground="White"  Height="30" Width="150" />
 
-            <!--<ComboBox Background="White" Foreground="Black"
-              Grid.Row="2"
-              Grid.Column="1"
-              Grid.ColumnSpan="3"                   
-              FontSize="14"
-              Cursor="Hand"
-              ItemsSource="{Binding IntervalDropDown}"  
-              SelectedValue="{Binding CheckInterval, NotifyOnTargetUpdated=True}"
-              Name="DropDownList" HorizontalAlignment="Left" VerticalAlignment="Top" Height="25" Width="120" Margin="0,5,0,0">
-
-            <ComboBox.ItemContainerStyle>
-                <Style TargetType="ComboBoxItem">
-                    <Setter Property="Background" Value="White"/>
-                    <Setter Property="BorderBrush" Value="White"/>
-
-                    <Style.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="#3A3A3F"/>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-                                                
-            </ComboBox.ItemContainerStyle>
-
-            <ComboBox.Resources>
-                -->
-            <!--Colour of ComboBoxItem-->
-            <!--
-                <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}" Color="Black" />
-                -->
-            <!--Mouse over colour of ComboBoxItem-->
-            <!--
-                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Black" />
-            </ComboBox.Resources>
-        </ComboBox>-->
-
             <Label Grid.Row="4"  Grid.Column="0" Content="Host:" Padding="0,5,0,0" Margin="10,0,0,0" FontSize="16"
                HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White" Height="30" Width="50" />
 
-            <TextBox Grid.Row="4" Grid.Column="1" Name="txtHost" 
-                 Text="{Binding DnsHost, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" 
+            <TextBox Grid.Row="4" Grid.Column="1" Name="DnsHost"
+                 Text="{Binding DnsHost, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left"
+                 IsReadOnly="{Binding IsRunning}"
                  FontSize="16" TextAlignment="Left" VerticalAlignment="Top" 
                  Height="25" Width="80" Margin="0,5,0,0" Padding="2,0,0,0"
                  Background="#60000000"
@@ -236,97 +184,39 @@
 
             <Label Grid.Row="4" Grid.Column="2" Content="Domain:" FontSize="16" 
                HorizontalAlignment="Left" VerticalAlignment="Top"
-               Padding="0,5,0,0" Margin="10,0,0,0" Foreground="White" />
+               Padding="0,5,0,0" Margin="0,0,0,0" Foreground="White" />
 
-
-            <TextBox Grid.Row="4" Grid.Column="3" Grid.ColumnSpan="2" Name="txtDomain"
+            <TextBox Grid.Row="4" Grid.Column="3" Grid.ColumnSpan="2" Name="DnsDomain"
                  Text="{Binding DnsDomain, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" 
                  FontSize="16" TextAlignment="Left" VerticalAlignment="Top" Height="25" Width="120" Margin="0,5,0,0" Padding="2,0,0,0"
                  Background="#60000000"
+                 IsReadOnly="{Binding IsRunning}"
                  Foreground="White" 
                  BorderBrush="#3C3C3C"/>
 
-            <Button Content="Start update" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="5" Width="110" Height="35"
-                Margin="10,0,0,0" FontWeight="SemiBold" FontSize="14" Foreground="White" Background="#333"
-                BorderBrush="#444" BorderThickness="1" Cursor="Hand" HorizontalAlignment="Left"
-                Visibility="{Binding Path=ShowStartButton, Converter={StaticResource BToVConverter}}"
+            <Button Style="{StaticResource PurpleHoverButton}" Content="Start update" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="5" Width="110" Height="35"
+                Margin="10,0,0,0" FontWeight="SemiBold" FontSize="14" BorderThickness="1" Cursor="Hand" HorizontalAlignment="Left"
+                Visibility="{Binding Path=NotRunning, Converter={StaticResource BToVConverter}}"
                 Command="{Binding StartDnsUpdater}">
-
-                <Button.Style>
-                    <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="Button">
-                                    <Border Background="{TemplateBinding Background}"
-                                            BorderBrush="{TemplateBinding BorderBrush}"
-                                            BorderThickness="{TemplateBinding BorderThickness}"
-                                            CornerRadius="4">
-                                        <ContentPresenter HorizontalAlignment="Center"
-                                                          VerticalAlignment="Center"/>
-                                    </Border>
-
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="#44D9EF"/>
-                                            <Setter Property="Foreground" Value="Black"/>
-                                        </Trigger>
-                                        <Trigger Property="IsPressed" Value="True">
-                                            <Setter Property="Background" Value="#2299BB"/>
-                                            <Setter Property="Foreground" Value="White"/>
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </Button.Style>
             </Button>
-
-            <Button Content="Stop update" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="5"  
-            Width="110" Height="35" Margin="10,0,0,0" HorizontalAlignment="Left"
-            FontWeight="SemiBold" FontSize="14" Foreground="White"
-            Background="#333" BorderBrush="#444" BorderThickness="1"
-            Cursor="Hand" Command="{Binding StopDnsUpdater}"
-            Visibility="{Binding Path=ShowStopButton, Converter={StaticResource BToVConverter}}">
-                <Button.Style>
-                    <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="Button">
-                                    <Border Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                    CornerRadius="4">
-                                        <ContentPresenter HorizontalAlignment="Center"
-                                                  VerticalAlignment="Center"/>
-                                    </Border>
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="#44D9EF"/>
-                                            <Setter Property="Foreground" Value="Black"/>
-                                        </Trigger>
-                                        <Trigger Property="IsPressed" Value="True">
-                                            <Setter Property="Background" Value="#2299BB"/>
-                                            <Setter Property="Foreground" Value="White"/>
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </Button.Style>
+            
+                <Button Style="{StaticResource PurpleHoverButton}" Content="Stop update" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="5"  
+                Width="110" Height="35" Margin="10,0,0,0" HorizontalAlignment="Left"
+                FontWeight="SemiBold" FontSize="14" BorderThickness="1" Cursor="Hand" Command="{Binding StopDnsUpdater}"
+                Visibility="{Binding Path=IsRunning, Converter={StaticResource BToVConverter}}">
             </Button>
 
             <TextBox Grid.Row="6"
-             Grid.Column="0"
-             Grid.ColumnSpan="7"
-             FontSize="14"
-             Name="txtDnsProgress" 
-             Text="{Binding DnsProgress, UpdateSourceTrigger=PropertyChanged}"
-             HorizontalAlignment="Left" TextAlignment="Left" TextWrapping="Wrap" 
-             VerticalAlignment="Top" Height="230" Width="500" Margin="10,0,0,0"
-             Background="Transparent"
-             Padding="5,3,2,0" Foreground="White" BorderBrush="#555555" />
+                 Grid.Column="0"
+                 Grid.ColumnSpan="7"
+                 FontSize="14"
+                 Name="txtDnsProgress" 
+                 IsReadOnly="true"
+                 Text="{Binding DnsProgress, UpdateSourceTrigger=PropertyChanged}"
+                 HorizontalAlignment="Left" TextAlignment="Left" TextWrapping="Wrap" 
+                 VerticalAlignment="Top" Height="230" Width="500" Margin="10,0,0,0"
+                 Background="Transparent"
+                 Padding="5,3,2,0" Foreground="White" BorderBrush="#555555" />
 
         </Grid>
     </Border>

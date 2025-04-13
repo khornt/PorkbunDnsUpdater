@@ -37,6 +37,7 @@ namespace PorkbunDnsUpdater.View
             if (msg == 0x0112 && ((int)wParam & 0xFFF0) == 0xF020)
             {
                 // Cancel the minimize.                                              
+                
                 _notifyIcon.ShowBalloonTip(5000,"DnsUpdater","Exit program from System tray", ToolTipIcon.Info);
 
                 handled = true;
@@ -66,15 +67,17 @@ namespace PorkbunDnsUpdater.View
         private void Minimize_Click(object sender, RoutedEventArgs e)
         {
             this.Hide();
+
+
             _notifyIcon.ShowBalloonTip(5000, "DnsUpdater", "Exit program from System tray", ToolTipIcon.Info);
-            //this.WindowState = WindowState.Minimized;
+           
         }
 
         private void Close_Click(object sender, RoutedEventArgs e)
         {
             this.Hide();
             _notifyIcon.ShowBalloonTip(5000, "DnsUpdater", "Exit program from System tray", ToolTipIcon.Info);
-            //this.Close();
+
         }
 
     }

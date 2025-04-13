@@ -7,16 +7,24 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
 	<UseWindowsForms>true</UseWindowsForms>
-	<ApplicationIcon>Resources\dnsMedium.ico</ApplicationIcon>
+	<ApplicationIcon>Resources\Justhead256.ico</ApplicationIcon>
+	<PlatformTarget>x64</PlatformTarget>
+	<SignAssembly>False</SignAssembly>	
+	<Copyright>No rights reserved</Copyright>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <WarningLevel>3</WarningLevel>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <WarningLevel>3</WarningLevel>
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove="Images\background.jpg" />
+    <None Remove="Images\backgroundTrans.png" />
     <None Remove="Images\Justhead.png" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="Resources\dnsMedium.ico" />
   </ItemGroup>
 
   <ItemGroup>
@@ -33,18 +41,15 @@
     <None Update="Resources\background.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Resources\JustHead128.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Justhead256.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Views\background.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Resources\dns.ico">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Resources\dns.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Resources\dnsSmall.ico">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    </None>	
   </ItemGroup>
 
   <ItemGroup>

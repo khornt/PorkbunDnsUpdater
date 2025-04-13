@@ -21,8 +21,8 @@ namespace PorkbunDnsUpdater.ViewModels
 
         private string _checkInterval;        
         private string? _dnsProgress;
-        private bool _showStartButton;
-        private bool _showStopButton;
+        private bool _isRunning;
+        private bool _notRunning;
 
 
         public DnsUpdaterViewModel(AppConfig appConfig, PorkbunUpdaterService porkbunUpdaterService)
@@ -33,8 +33,8 @@ namespace PorkbunDnsUpdater.ViewModels
             IntervalDropDown = appConfig.PorkbunIntervals;
             StartDnsUpdater = new TaskDelegateCommand(ExecuteStartDnsUpdater, CanExecuteStartDnsUpdater).ObservesProperty(() => DnsProgress);
             StopDnsUpdater = new DelegateCommand(ExecuteStopDnsUpdater);
-            _showStopButton = false;
-            _showStartButton = true;
+            _isRunning = false;
+            _notRunning = true;
         }
 
 
@@ -79,16 +79,16 @@ namespace PorkbunDnsUpdater.ViewModels
             set { _dnsProgress = value; OnPropertyChanged("DnsProgress"); }
         }
 
-        public bool ShowStopButton
+        public bool IsRunning
         {
-            get { return _showStopButton; }
-            set { _showStopButton = value; OnPropertyChanged("ShowStopButton"); }
+            get { return _isRunning; }
+            set { _isRunning = value; OnPropertyChanged("IsRunning"); }
         }
 
-        public bool ShowStartButton
+        public bool NotRunning
         {
-            get { return _showStartButton; }
-            set { _showStartButton = value; OnPropertyChanged("ShowStartButton"); }
+            get { return _notRunning; }
+            set { _notRunning = value; OnPropertyChanged("NotRunning"); }
         }
 
         private int _intervalInMinutes;
@@ -133,8 +133,8 @@ namespace PorkbunDnsUpdater.ViewModels
 
         private async Task ExecuteStartDnsUpdater()
         {
-            ShowStartButton = false;
-            ShowStopButton = true;
+            NotRunning = false;
+            IsRunning = true;
 
             var justNow = DateTimeOffset.Now;
             cts = new CancellationTokenSource();
@@ -145,8 +145,8 @@ namespace PorkbunDnsUpdater.ViewModels
 
             if (record == null)
             {
-                ShowStartButton = true;
-                ShowStopButton = false;
+                NotRunning = true;
+                IsRunning = false;
                 return;
             }
 
@@ -173,8 +173,8 @@ namespace PorkbunDnsUpdater.ViewModels
                 if (response == "")
                 {
                     StatusWindowUpdater("STOP!!");
-                    ShowStartButton = true;
-                    ShowStopButton = false;
+                    NotRunning = true;
+                    IsRunning = false;
                     return;
                 }               
                 _currentV4Ip = response;                
@@ -197,8 +197,8 @@ namespace PorkbunDnsUpdater.ViewModels
         {
 
             cts.Cancel();
-            ShowStartButton = true;
-            ShowStopButton = false;
+            NotRunning = true;
+            IsRunning = false;
         }
 
         private async Task<Record?> GetDnsRecordToUpdate()

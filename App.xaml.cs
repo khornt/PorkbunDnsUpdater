@@ -17,7 +17,6 @@ namespace PorkbunDnsUpdater
         public App()
         {
 
-            ///_notifyIcon = new NotifyIcon();
             IServiceCollection services = new ServiceCollection();
 
             services.AddSingleton<NotifyIcon>();
@@ -25,9 +24,7 @@ namespace PorkbunDnsUpdater
 
             services.AddSingleton<IPorkbunHttpClient, PorkbunHttpClient>();
             services.AddSingleton<PorkbunUpdaterService>(s => new PorkbunUpdaterService(s.GetRequiredService<IPorkbunHttpClient>()));
-
             services.AddSingleton<DnsUpdaterViewModel>();                      
-
             services.AddSingleton<DnsUpdaterView>(s => new DnsUpdaterView(s.GetRequiredService<NotifyIcon>())
             {
                
@@ -54,24 +51,21 @@ namespace PorkbunDnsUpdater
         {
 
             var notifyer = _serviceProvider.GetRequiredService<NotifyIcon>();
-
-            notifyer.Icon = new System.Drawing.Icon("Resources/dnsSmall.ico");
+            
+            notifyer.Icon = new System.Drawing.Icon("Resources/Justhead256.ico");
             notifyer.Visible = true;
             notifyer.Text = "DNS Updater";
-            //_notifyIcon.Click += _notifyIcon_Click;
+
+            var aboutIcon =Image.FromFile("Resources/Justhead128.ico");
 
             notifyer.ContextMenuStrip = new ContextMenuStrip();
-
             notifyer.ContextMenuStrip.Items.Add("Show", null, OnShowClicked);
-            notifyer.ContextMenuStrip.Items.Add("About", null, OnAboutClicked);
+            notifyer.ContextMenuStrip.Items.Add("About", aboutIcon, OnAboutClicked);
             notifyer.ContextMenuStrip.Items.Add("Exit",null, OnExitClicked);
-
         }
 
         private void OnAboutClicked(object? sender, EventArgs e)
         {
-                       
-
             System.Windows.MessageBox.Show(CreateAboutText(), "Dynamic DNS Client", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
@@ -104,7 +98,7 @@ namespace PorkbunDnsUpdater
             var about = "Dynamic DNS Client (0.9) for Porkbun DNS" + Environment.NewLine;
             about += "Copyright © 2025 Horntvedt.com. No rights reserved" + Environment.NewLine + Environment.NewLine;
 
-            about += "Credits: https://www.flaticon.com/free-icons/dns";
+            about += "Credits: Me :-)";
 
             return about;
         }

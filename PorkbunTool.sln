@@ -5,7 +5,7 @@ VisualStudioVersion = 17.12.35728.132
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PorkbunDnsUpdater", "PorkbunDnsUpdater.csproj", "{6711983B-24D3-4EA9-80AD-323E738E09F3}"
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "SetupPB", "..\SetupPB\SetupPB.vdproj", "{5254B060-AAE3-6C0F-2221-F0A744F6F051}"
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "SetupPorkbunDnsUpdater", "..\SetupPB\SetupPB.vdproj", "{5254B060-AAE3-6C0F-2221-F0A744F6F051}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
