@@ -39,8 +39,6 @@ namespace PorkbunDnsUpdater
                      
             MainWindow = _serviceProvider.GetRequiredService<DnsUpdaterView>();
             
-            
-
             SetupNotify();           
             MainWindow.Show();
             base.OnStartup(e);

@@ -10,7 +10,7 @@
         d:DataContext="{d:DesignInstance Type=viewModels:DnsUpdaterViewModel}"
         mc:Ignorable="d"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        Title="DNS Updater" Height="520" Width="580">
+        Title="DNS Updater" Height="560" Width="580">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BToVConverter" />
 
@@ -94,6 +94,8 @@
                 <RowDefinition Height="40"/>
                 <RowDefinition Height="40"/>
                 <RowDefinition Height="40"/>
+                <RowDefinition Height="25"/>
+                <RowDefinition Height="35"/>
                 <RowDefinition Height="60"/>
                 <RowDefinition Height="270"/>
                 <RowDefinition Height="*"/>
@@ -145,17 +147,11 @@
                 Grid.ColumnSpan="5" Grid.Column="0" Grid.Row="1" FontSize="26"                       
                 FontWeight="SemiBold" Foreground="#CCD6F6" Margin="0,5,0,0" HorizontalAlignment="Left"/>
 
-            <Label Grid.Row="2" Grid.Column="0"  Content="Ipv4:" Padding="0,5,0,0" Margin="10,0,0,0" 
-               FontSize="16" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White"  Height="30" Width="70" />
-
-            <Label Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2"  Content="{Binding CurrentV4iP}" Padding="0,5,0,0"  
-               Margin="1,0,0,0" FontSize="16" HorizontalAlignment="Left" VerticalAlignment="Top" 
-               Foreground="White"  Height="30" Width="100" />
-
-            <Label Grid.Row="3" Grid.Column="0"  Content="Interval:" Padding="0,5,0,0" Margin="10,0,0,0" FontSize="16"
+            
+            <Label Grid.Row="2" Grid.Column="0"  Content="Interval:" Padding="0,5,0,0" Margin="10,0,0,0" FontSize="16"
                HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White"  Height="30" Width="70" />
 
-            <Slider Minimum="0" Maximum="180" TickFrequency="10" Grid.Row="3" Grid.Column="1" Name="progressSlider"
+            <Slider Minimum="0" Maximum="180" TickFrequency="10" Grid.Row="2" Grid.Column="1" Name="progressSlider"
                 Width="140" HorizontalAlignment="Left" Grid.ColumnSpan="3" Padding="0,5,0,0" Cursor="Hand"
                 IsEnabled="{Binding NotRunning}"
                 Margin="0,6,0,0" Value="{Binding IntervalInMinutes, Mode=TwoWay}" IsSnapToTickEnabled="False"
@@ -166,14 +162,14 @@
                 HorizontalAlignment="Left" VerticalAlignment="Top"
                 Margin="40,0,0,10"  Source="/Images/Justhead.png" />
 
-            <Label Grid.Row="3" Grid.Column="3" Grid.ColumnSpan="3"  Content="{Binding IntervalDisplay}" 
+            <Label Grid.Row="2" Grid.Column="3" Grid.ColumnSpan="3"  Content="{Binding IntervalDisplay}" 
                Padding="0,2,0,0" Margin="5,0,0,0" FontSize="16" HorizontalAlignment="Left" 
                VerticalAlignment="Top" Foreground="White"  Height="30" Width="150" />
 
-            <Label Grid.Row="4"  Grid.Column="0" Content="Host:" Padding="0,5,0,0" Margin="10,0,0,0" FontSize="16"
+            <Label Grid.Row="3"  Grid.Column="0" Content="Host:" Padding="0,5,0,0" Margin="10,0,0,0" FontSize="16"
                HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White" Height="30" Width="50" />
 
-            <TextBox Grid.Row="4" Grid.Column="1" Name="DnsHost"
+            <TextBox Grid.Row="3" Grid.Column="1" Name="DnsHost"
                  Text="{Binding DnsHost, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left"
                  IsReadOnly="{Binding IsRunning}"
                  FontSize="16" TextAlignment="Left" VerticalAlignment="Top" 
@@ -182,11 +178,11 @@
                  Foreground="White"
                  BorderBrush="#3C3C3C"/>
 
-            <Label Grid.Row="4" Grid.Column="2" Content="Domain:" FontSize="16" 
+            <Label Grid.Row="3" Grid.Column="2" Content="Domain:" FontSize="16" 
                HorizontalAlignment="Left" VerticalAlignment="Top"
                Padding="0,5,0,0" Margin="0,0,0,0" Foreground="White" />
 
-            <TextBox Grid.Row="4" Grid.Column="3" Grid.ColumnSpan="2" Name="DnsDomain"
+            <TextBox Grid.Row="3" Grid.Column="3" Grid.ColumnSpan="2" Name="DnsDomain"
                  Text="{Binding DnsDomain, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" 
                  FontSize="16" TextAlignment="Left" VerticalAlignment="Top" Height="25" Width="120" Margin="0,5,0,0" Padding="2,0,0,0"
                  Background="#60000000"
@@ -194,27 +190,52 @@
                  Foreground="White" 
                  BorderBrush="#3C3C3C"/>
 
-            <Button Style="{StaticResource PurpleHoverButton}" Content="Start update" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="5" Width="110" Height="35"
+
+            <Label Grid.Row="4"  Grid.Column="0" Grid.ColumnSpan="2" Content="Include IPv6: " Padding="0,5,0,0" Margin="10,0,0,0" FontSize="16"
+                HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White" Height="30" Width="250" />
+
+            <CheckBox Grid.Row="4"  Grid.Column="1" IsChecked="{Binding IncludeIPv6}" IsEnabled="{Binding NotRunning}" VerticalAlignment="Top"  Margin="30,10,0,0" />
+
+
+            <Label Grid.Row="5" Grid.Column="0"  Content="Ipv4:" Padding="0,5,0,0" Margin="10,0,0,0" 
+                FontSize="16" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White"  Height="30" Width="70" />
+
+
+            <Label Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="3"  Content="{Binding CurrentIPv4}" Padding="0,5,0,0"  
+                   Margin="1,0,0,0" FontSize="16" HorizontalAlignment="Left" VerticalAlignment="Top" 
+                   Foreground="White"  Height="30" Width="100" />
+
+            <Label Grid.Row="6" Grid.Column="0"  Content="Ipv6:" Padding="0,5,0,0" Margin="10,0,0,0" 
+                    FontSize="16" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="White"  Height="30" Width="70" />
+
+
+            <Label Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="4"  Content="{Binding CurrentIPv6}" Padding="0,5,0,0"  
+                    Margin="1,0,0,0" FontSize="16" HorizontalAlignment="Left" VerticalAlignment="Top" 
+                    Foreground="White"  Height="30" Width="300" />
+
+
+            <Button Style="{StaticResource PurpleHoverButton}" Content="Start update" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="7" Width="110" Height="35"
                 Margin="10,0,0,0" FontWeight="SemiBold" FontSize="14" BorderThickness="1" Cursor="Hand" HorizontalAlignment="Left"
                 Visibility="{Binding Path=NotRunning, Converter={StaticResource BToVConverter}}"
                 Command="{Binding StartDnsUpdater}">
             </Button>
             
-                <Button Style="{StaticResource PurpleHoverButton}" Content="Stop update" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="5"  
+                <Button Style="{StaticResource PurpleHoverButton}" Content="Stop update" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="7"
                 Width="110" Height="35" Margin="10,0,0,0" HorizontalAlignment="Left"
                 FontWeight="SemiBold" FontSize="14" BorderThickness="1" Cursor="Hand" Command="{Binding StopDnsUpdater}"
                 Visibility="{Binding Path=IsRunning, Converter={StaticResource BToVConverter}}">
             </Button>
 
-            <TextBox Grid.Row="6"
+            <TextBox Grid.Row="8"
                  Grid.Column="0"
                  Grid.ColumnSpan="7"
                  FontSize="14"
                  Name="txtDnsProgress" 
                  IsReadOnly="true"
+                 TextWrapping="NoWrap"
                  Text="{Binding DnsProgress, UpdateSourceTrigger=PropertyChanged}"
-                 HorizontalAlignment="Left" TextAlignment="Left" TextWrapping="Wrap" 
-                 VerticalAlignment="Top" Height="230" Width="500" Margin="10,0,0,0"
+                 HorizontalAlignment="Left" TextAlignment="Left"
+                 VerticalAlignment="Top" Height="200" Width="535" Margin="10,0,0,0"
                  Background="Transparent"
                  Padding="5,3,2,0" Foreground="White" BorderBrush="#555555" />
 

@@ -46,9 +46,6 @@
     </None>
     <None Update="Resources\Justhead256.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Views\background.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>	
   </ItemGroup>
 

@@ -2,7 +2,7 @@
 
 namespace PorkbunDnsUpdater.Backend.PorkBun.Dto.Response
 {
-    public class PingV4Response
+    public class PingResponse
     {
 
         [JsonProperty("status")]

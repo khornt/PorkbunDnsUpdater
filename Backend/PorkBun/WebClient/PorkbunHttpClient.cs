@@ -6,6 +6,7 @@ using PorkbunDnsUpdater.Backend.PorkBun.Dto.Request;
 using PorkbunDnsUpdater.Backend.PorkBun.Dto.Response;
 using PorkbunDnsUpdater.Backend.PorkBun.Dto.Response.JsonToCSharp;
 using PorkbunDnsUpdater.Models;
+using PorkbunDnsUpdater.ViewModels;
 
 namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
 {
@@ -18,17 +19,26 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
 
         public PorkbunHttpClient(AppConfig appConfig)
         {
-            _appConfig = appConfig;
-            //_httpClient = new HttpClient();
+            _appConfig = appConfig;        
             _jsonFomatter = JsonFormatter();
         }
 
 
-        public async Task<PingV4Response?> Ping(CancellationToken ct)
+        public async Task<PingResponse?> Ping(DnsType dnsType, CancellationToken ct)
         {
+            string apiUrl = "";
+            if (DnsType.AAAA == dnsType)
+            {
+                apiUrl = _appConfig.PorkbunApiUrl + "/ping";
+            } else if (DnsType.A == dnsType) 
+            {
+                apiUrl = _appConfig.PorkbunApiUrlv4 + "/ping";
+            }
+
+
             try
             {
-                using (var request = new HttpRequestMessage(HttpMethod.Post, _appConfig.PorkbunApiUrl + "/ping"))
+                using (var request = new HttpRequestMessage(HttpMethod.Post, apiUrl))
                 {                   
                     request.Content = new StringContent(CreatePingRequest(), Encoding.UTF8, "application/json");
 
@@ -37,14 +47,14 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
                         if (httpResponse.IsSuccessStatusCode)
                         {
                             var response = await httpResponse.Content.ReadAsStringAsync();
-                            var dtoObject = JsonConvert.DeserializeObject<PingV4Response>(response);
+                            var dtoObject = JsonConvert.DeserializeObject<PingResponse>(response);
 
                             return dtoObject;
                         }
                         else
                         {
                             var response = await httpResponse.Content.ReadAsStringAsync();
-                            var dtoObject = JsonConvert.DeserializeObject<PingV4Response>(response);
+                            var dtoObject = JsonConvert.DeserializeObject<PingResponse>(response);
                             return dtoObject;
                         }
                     }
@@ -56,10 +66,10 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
             }
         }
 
-        public async Task<PorkbunRecordResponse?> GetPorkbunRecord(Record record, CancellationToken ct)
 
+        public async Task<PorkbunRecordResponse?> GetPorkbunRecord(Record record, DnsType type,CancellationToken ct)
         {                        
-            var requestUrl = _appConfig.PorkbunApiUrl + "/dns/retrieveByNameType/" + record.Domain + "/" + record.Type + "/" + record.HostName;
+            var requestUrl = _appConfig.PorkbunApiUrl + "/dns/retrieveByNameType/" + record.Domain + "/" + DnsTypeToString(type) + "/" + record.HostName;
 
             using (var request = new HttpRequestMessage(HttpMethod.Post, requestUrl))
             {
@@ -94,11 +104,11 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
         }
 
 
-        public async Task<PorkbunRecordResponse?> UpdatePorkbunRecord(Record record, string myNewIp, CancellationToken ct)
+        public async Task<PorkbunRecordResponse?> UpdatePorkbunRecord(Record record, DnsType type ,string myNewIp, CancellationToken ct)
         {
             try
             {                
-                var requestUrl = _appConfig.PorkbunApiUrl + "/dns/editByNameType/" + record.Domain + "/" + record.Type + "/" + record.HostName;
+                var requestUrl = _appConfig.PorkbunApiUrl + "/dns/editByNameType/" + record.Domain + "/" + DnsTypeToString(type) + "/" + record.HostName;
 
                 using (var request = new HttpRequestMessage(HttpMethod.Post, requestUrl))
                 {
@@ -152,7 +162,7 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
             {
                 Apikey = _appConfig.PorkbunApiKey,
                 Secretapikey = _appConfig.PorkbunApiSecret,
-                Content = myNewIp,
+                Content = "92.220.120.22",
                 Ttl = "600"
             };
 
@@ -185,6 +195,23 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
 
             return formatter;
         }
-                
+
+
+        private string DnsTypeToString(DnsType dnsType)
+        {
+
+            switch (dnsType)
+            {
+                case DnsType.A:
+                    return "A";
+                case DnsType.AAAA:
+                    return "AAAA";
+                default:
+                    return "";
+
+            }
+        }
+
+
     }
 }

@@ -14,23 +14,22 @@ namespace PorkbunDnsUpdater.ViewModels
         private readonly PorkbunUpdaterService _porkbunUpdaterService;
         private readonly AppConfig _appConfig;
 
-        private string? _currentV4Ip;
-        private string? _currentV6Ip;
+        private string? _currentIPv4;
+        private string? _currentIPv6;
         private string? _dnsHost;
         private string? _dnsDomain;
 
-        private string _checkInterval;        
+        private string? _checkInterval;        
         private string? _dnsProgress;
         private bool _isRunning;
         private bool _notRunning;
+        private bool _includeIPv6;
 
 
         public DnsUpdaterViewModel(AppConfig appConfig, PorkbunUpdaterService porkbunUpdaterService)
         {            
             _appConfig = appConfig;
-            _porkbunUpdaterService = porkbunUpdaterService;
-
-            IntervalDropDown = appConfig.PorkbunIntervals;
+            _porkbunUpdaterService = porkbunUpdaterService;            
             StartDnsUpdater = new TaskDelegateCommand(ExecuteStartDnsUpdater, CanExecuteStartDnsUpdater).ObservesProperty(() => DnsProgress);
             StopDnsUpdater = new DelegateCommand(ExecuteStopDnsUpdater);
             _isRunning = false;
@@ -43,16 +42,16 @@ namespace PorkbunDnsUpdater.ViewModels
         public ICommand StopDnsUpdater { get; private set; }
          
 
-        public string? CurrentV4iP
+        public string? CurrentIPv4
         {
-            get { return _currentV4Ip; }
-            set { _currentV4Ip = value; OnPropertyChanged("CurrentV4iP"); }
+            get { return _currentIPv4; }
+            set { _currentIPv4 = value; OnPropertyChanged("CurrentIPv4"); }
         }
 
-        public string? CurrentV6iP
+        public string? CurrentIPv6
         {
-            get { return _currentV6Ip; }
-            set { _currentV6Ip = value; OnPropertyChanged("CurrentV6iP"); }
+            get { return _currentIPv6; }
+            set { _currentIPv6 = value; OnPropertyChanged("CurrentIPv6"); }  //Not implemented
         }
 
         public string? DnsHost
@@ -91,6 +90,13 @@ namespace PorkbunDnsUpdater.ViewModels
             set { _notRunning = value; OnPropertyChanged("NotRunning"); }
         }
 
+        public bool IncludeIPv6
+        {
+            get { return _includeIPv6; }
+            set { _includeIPv6 = value; OnPropertyChanged("IncludeIPv6"); }
+        }
+
+
         private int _intervalInMinutes;
         
         public int IntervalInMinutes
@@ -110,22 +116,21 @@ namespace PorkbunDnsUpdater.ViewModels
             get
             {
                 if (IntervalInMinutes == 1440)
-                    return "Interval: 1 day";
+                    return "1 day";
 
                 if (IntervalInMinutes >= 60)
                 {
                     int hours = IntervalInMinutes / 60;
                     int minutes = IntervalInMinutes % 60;
                     if (minutes == 0)
-                        return $"Interval: {hours} hour{(hours > 1 ? "s" : "")}";
+                        return $"{hours} hour{(hours > 1 ? "s" : "")}";
                     else
-                        return $"Interval: {hours}h {minutes}m";
+                        return $"{hours}h {minutes}m";
                 }
 
-                return $"Interval: {IntervalInMinutes} min";
+                return $"{IntervalInMinutes} min";
             }
         }
-
 
 
         public List<string> IntervalDropDown { get; }
@@ -136,7 +141,6 @@ namespace PorkbunDnsUpdater.ViewModels
             NotRunning = false;
             IsRunning = true;
 
-            var justNow = DateTimeOffset.Now;
             cts = new CancellationTokenSource();
 
             DnsProgress = "";
@@ -151,13 +155,7 @@ namespace PorkbunDnsUpdater.ViewModels
             }
 
             StatusWindowUpdater("Starting up DnsUpdater!!", false);
-
-            //if (IntervalInMinutes == null)
-            //{
-            //    StatusWindowUpdater("Default check interval: 60  min");
-            //}
-            
-            //var checkInterval = IntervalConverter(CheckInterval);
+                        
             Progress<StatusReport> report = new Progress<StatusReport>();
 
             report.ProgressChanged += DnsUpdaterReport;
@@ -165,32 +163,69 @@ namespace PorkbunDnsUpdater.ViewModels
             Progress<ProgressReport> progress = new Progress<ProgressReport>();
             progress.ProgressChanged += DnsUpdaterRrogress;
 
+            var isInitOk = await InitDnsIP(record, report, cts.Token);
+            if (!isInitOk) return;
 
-            if (_currentV4Ip == null)
-            {
-                var response = await _porkbunUpdaterService.InitDnsUpdaterdater(record, report, cts.Token);
+            StatusWindowUpdater("Scheduled update will be in intervals of: " + IntervalDisplay);
+            
 
-                if (response == "")
-                {
-                    StatusWindowUpdater("STOP!!");
-                    NotRunning = true;
-                    IsRunning = false;
-                    return;
-                }               
-                _currentV4Ip = response;                
-            }
 
-            StatusWindowUpdater("First scheduled update will be in " + IntervalDisplay);
 
-            CurrentV4iP = _currentV4Ip;
             try
             {
-                await _porkbunUpdaterService.ContinuouslyUpdate(record, _intervalInMinutes, CurrentV4iP, report, progress, cts.Token);
+                var IPv4Task = _porkbunUpdaterService.ContinuouslyUpdateIP(record, DnsType.A, CurrentIPv4, _intervalInMinutes,  report, progress, cts.Token);
+                
+                var taskList = new List<Task>
+                {
+                    IPv4Task
+                };
+
+                if (_includeIPv6)
+                {                                        
+                    var IPv6Task = _porkbunUpdaterService.ContinuouslyUpdateIP(record, DnsType.AAAA, CurrentIPv6, _intervalInMinutes, report, progress, cts.Token);
+                    taskList.Add(IPv6Task);
+                }
+                else 
+                {
+                    CurrentIPv6 = "NaN";
+                }
+
+                await Task.WhenAll(taskList.ToArray());
             }
             catch (OperationCanceledException)
             {
                 StatusWindowUpdater("STOP!!");
-            }                        
+            }
+        }
+
+        private async Task<bool> InitDnsIP(Record record, Progress<StatusReport> report, CancellationToken ct)
+        {
+            CurrentIPv4 = await _porkbunUpdaterService.InitDnsUpdaterdater(record, DnsType.A, report, ct);
+
+            if (string.IsNullOrEmpty(CurrentIPv4))
+            {
+                StatusWindowUpdater("STOP!!");
+                NotRunning = true;
+                IsRunning = false;
+                return false;
+            }
+
+            if (_includeIPv6)
+            {
+                CurrentIPv6 = await _porkbunUpdaterService.InitDnsUpdaterdater(record, DnsType.AAAA, report, ct);
+                if (string.IsNullOrEmpty(CurrentIPv6))
+                {
+                    StatusWindowUpdater("STOP!!");
+                    NotRunning = true;
+                    IsRunning = false;
+                    return false;
+                }
+            }
+            else
+            {
+                CurrentIPv6 = "NaN";
+            }
+            return true;
         }
 
         private void ExecuteStopDnsUpdater()
@@ -234,7 +269,6 @@ namespace PorkbunDnsUpdater.ViewModels
             var record = new Record
             {
                 Domain = _dnsDomain,
-                Type = "A",
                 HostName = _dnsHost
             };
 
@@ -246,14 +280,18 @@ namespace PorkbunDnsUpdater.ViewModels
             StatusWindowUpdater(e.Content, e.Newline);
         }
         
-        private void DnsUpdaterRrogress(object? sender, ProgressReport e)   
+        private void DnsUpdaterRrogress(object? sender, ProgressReport progress)   
         {            
-            if (!string.IsNullOrEmpty(e.Ip4)) 
+
+            if (progress.DnsType == DnsType.A)
             {
-                CurrentV4iP = e.Ip4;
+                CurrentIPv4 = progress.IP;
+            } 
+            else if (progress.DnsType == DnsType.AAAA)
+            {
+                CurrentIPv6 = progress.IP;
             }
         }
-
 
         private void StatusWindowUpdater(string logg, bool newLine = true)
         {
@@ -272,31 +310,6 @@ namespace PorkbunDnsUpdater.ViewModels
         private bool CanExecuteStartDnsUpdater()
         {
             return true;
-        }
-
-        //private int IntervalConverter(string name)
-        //{
-        //    switch (name)
-        //    {
-        //        case "15 min":
-        //            return 15;
-        //        case "30 min":
-        //            return 30;
-        //        case "1 hour":
-        //            return 60;
-        //        case "3 hour":
-        //            return 180;
-        //        case "6 hour":
-        //            return 360;
-        //        case "12 hour":
-        //            return 720;
-        //        case "1 day":
-        //            return 1440;
-        //        case "1 min":
-        //            return 1;
-        //        default:
-        //            return 60;
-        //    }
-        //}
+        }     
     }
 }
