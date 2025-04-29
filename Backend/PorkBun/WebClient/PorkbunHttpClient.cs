@@ -162,7 +162,7 @@ namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
             {
                 Apikey = _appConfig.PorkbunApiKey,
                 Secretapikey = _appConfig.PorkbunApiSecret,
-                Content = "92.220.120.22",
+                Content = myNewIp,
                 Ttl = "600"
             };
 

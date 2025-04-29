@@ -64,26 +64,26 @@ namespace PorkbunDnsUpdater.Services
 
             if (!string.IsNullOrEmpty(currentDnsIP))
             {
-                var reportBack = "Your DNS " + IPvX + " is: " + currentDnsIP.ToString();
+                var reportBack = $"Your DNS  {IPvX}  is: { currentDnsIP.ToString()}";
                 report.Report(new StatusReport { Content = reportBack });
             }
             else
             {
-                var reportBack = "Failed retrieving you " + IPvX + " DNS record";
+                var reportBack = $"Failed retrieving you {IPvX} DNS record";
                 report.Report(new StatusReport { Content = reportBack });
                 return null;
             }
 
             if (realIP.YourIp != currentDnsIP)
             {
-                var reportBack = "Updating DNS " + IPvX + " PorkbunRecord";
+                var reportBack = $"Updating DNS {IPvX} PorkbunRecord";
                 report.Report(new StatusReport { Content = reportBack });
 
                 var response = await _httpClient.UpdatePorkbunRecord(record, dnsType, realIP.YourIp, ct);
 
                 if (response != null && response.Status == "SUCCESS")
                 {
-                    report.Report(new StatusReport { Content = "Done!", Newline = false });
+                    report.Report(new StatusReport { Content = $"Done Update {IPvX}!"});
                 }
             }
 
@@ -119,7 +119,7 @@ namespace PorkbunDnsUpdater.Services
 
                         if (updateResponse?.Status == "SUCCESS")
                         {
-                            var reportBack = $"DNS PorkbunRecord has been updated with IP: {realIP.YourIp}";
+                            var reportBack = $"New {IPvX} : {realIP.YourIp}";
                             report.Report(new StatusReport { Content = reportBack });
 
                             ip = realIP.YourIp;
